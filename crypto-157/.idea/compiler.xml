@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel>
+      <module name="core_main" target="1.5" />
+      <module name="core_test" target="1.5" />
+      <module name="crypto-157_main" target="1.8" />
+      <module name="crypto-157_test" target="1.8" />
+      <module name="mail_main" target="1.5" />
+      <module name="mail_test" target="1.5" />
+      <module name="pg_main" target="1.5" />
+      <module name="pg_test" target="1.5" />
+      <module name="pkix_main" target="1.5" />
+      <module name="pkix_test" target="1.5" />
+      <module name="prov_main" target="1.5" />
+      <module name="prov_test" target="1.5" />
+      <module name="test_main" target="1.5" />
+      <module name="test_test" target="1.5" />
+      <module name="tls_main" target="1.5" />
+      <module name="tls_test" target="1.5" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

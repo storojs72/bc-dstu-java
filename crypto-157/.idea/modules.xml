@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/core.iml" filepath="$PROJECT_DIR$/.idea/modules/core/core.iml" group="core" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/core_main.iml" filepath="$PROJECT_DIR$/.idea/modules/core/core_main.iml" group="core" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/core_test.iml" filepath="$PROJECT_DIR$/.idea/modules/core/core_test.iml" group="core" />
+      <module fileurl="file://$PROJECT_DIR$/crypto-157.iml" filepath="$PROJECT_DIR$/crypto-157.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/crypto-157_main.iml" filepath="$PROJECT_DIR$/.idea/modules/crypto-157_main.iml" group="crypto-157" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/crypto-157_test.iml" filepath="$PROJECT_DIR$/.idea/modules/crypto-157_test.iml" group="crypto-157" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/mail/mail.iml" filepath="$PROJECT_DIR$/.idea/modules/mail/mail.iml" group="mail" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/mail/mail_main.iml" filepath="$PROJECT_DIR$/.idea/modules/mail/mail_main.iml" group="mail" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/mail/mail_test.iml" filepath="$PROJECT_DIR$/.idea/modules/mail/mail_test.iml" group="mail" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/pg/pg.iml" filepath="$PROJECT_DIR$/.idea/modules/pg/pg.iml" group="pg" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/pg/pg_main.iml" filepath="$PROJECT_DIR$/.idea/modules/pg/pg_main.iml" group="pg" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/pg/pg_test.iml" filepath="$PROJECT_DIR$/.idea/modules/pg/pg_test.iml" group="pg" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/pkix/pkix.iml" filepath="$PROJECT_DIR$/.idea/modules/pkix/pkix.iml" group="pkix" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/pkix/pkix_main.iml" filepath="$PROJECT_DIR$/.idea/modules/pkix/pkix_main.iml" group="pkix" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/pkix/pkix_test.iml" filepath="$PROJECT_DIR$/.idea/modules/pkix/pkix_test.iml" group="pkix" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/prov/prov.iml" filepath="$PROJECT_DIR$/.idea/modules/prov/prov.iml" group="prov" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/prov/prov_main.iml" filepath="$PROJECT_DIR$/.idea/modules/prov/prov_main.iml" group="prov" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/prov/prov_test.iml" filepath="$PROJECT_DIR$/.idea/modules/prov/prov_test.iml" group="prov" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/test/test.iml" filepath="$PROJECT_DIR$/.idea/modules/test/test.iml" group="test" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/test/test_main.iml" filepath="$PROJECT_DIR$/.idea/modules/test/test_main.iml" group="test" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/test/test_test.iml" filepath="$PROJECT_DIR$/.idea/modules/test/test_test.iml" group="test" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/tls/tls.iml" filepath="$PROJECT_DIR$/.idea/modules/tls/tls.iml" group="tls" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/tls/tls_main.iml" filepath="$PROJECT_DIR$/.idea/modules/tls/tls_main.iml" group="tls" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/tls/tls_test.iml" filepath="$PROJECT_DIR$/.idea/modules/tls/tls_test.iml" group="tls" />
+    </modules>
+  </component>
+</project>

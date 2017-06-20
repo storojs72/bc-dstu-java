@@ -1,0 +1,11 @@
+dependencies {
+    compile project(':core')
+  compile 'junit:junit:4.12'
+}
+
+cobertura {
+   coverageDirs = [
+       "${rootProject.projectDir}/core/build/classes/main",
+       "${rootProject.projectDir}/prov/build/classes/main"
+  ] 
+}
