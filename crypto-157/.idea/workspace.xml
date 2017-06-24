@@ -56,15 +56,14 @@
       <file leaf-file-name="DSTU7564Test.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/core/src/test/java/org/bouncycastle/crypto/test/DSTU7564Test.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="220">
-              <caret line="25" column="0" lean-forward="true" selection-start-line="25" selection-start-column="0" selection-end-line="25" selection-end-column="0" />
+            <state relative-caret-position="303">
+              <caret line="367" column="9" lean-forward="false" selection-start-line="367" selection-start-column="9" selection-end-line="367" selection-end-column="9" />
               <folding>
                 <element signature="method#main#0;class#DSTU7564Test#0" expanded="false" />
                 <element signature="method#performTest#0;class#DSTU7564Test#0" expanded="false" />
                 <element signature="method#macTests#0;class#DSTU7564Test#0" expanded="false" />
                 <element signature="method#hash512Tests#0;class#DSTU7564Test#0" expanded="false" />
                 <element signature="method#hash384Tests#0;class#DSTU7564Test#0" expanded="false" />
-                <element signature="method#hash256Tests#0;class#DSTU7564Test#0" expanded="false" />
                 <element signature="method#overflowTest#0;class#DSTU7564Test#0" expanded="false" />
               </folding>
             </state>
@@ -2598,7 +2597,7 @@
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.47988078" sideWeight="0.120676406" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23546945" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23546945" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Properties" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32935917" sideWeight="0.49730977" order="9" side_tool="false" content_ui="tabs" />
@@ -3032,15 +3031,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/core/src/test/java/org/bouncycastle/crypto/test/DSTU7564Test.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="220">
-          <caret line="25" column="0" lean-forward="true" selection-start-line="25" selection-start-column="0" selection-end-line="25" selection-end-column="0" />
+        <state relative-caret-position="303">
+          <caret line="367" column="9" lean-forward="false" selection-start-line="367" selection-start-column="9" selection-end-line="367" selection-end-column="9" />
           <folding>
             <element signature="method#main#0;class#DSTU7564Test#0" expanded="false" />
             <element signature="method#performTest#0;class#DSTU7564Test#0" expanded="false" />
             <element signature="method#macTests#0;class#DSTU7564Test#0" expanded="false" />
             <element signature="method#hash512Tests#0;class#DSTU7564Test#0" expanded="false" />
             <element signature="method#hash384Tests#0;class#DSTU7564Test#0" expanded="false" />
-            <element signature="method#hash256Tests#0;class#DSTU7564Test#0" expanded="false" />
             <element signature="method#overflowTest#0;class#DSTU7564Test#0" expanded="false" />
           </folding>
         </state>

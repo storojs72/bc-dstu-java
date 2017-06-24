@@ -367,22 +367,6 @@ public class DSTU7564Test extends DigestTest {
                     + " got " + Hex.toHexString(hash));
         }
 
-//        //test 7 (partial block)
-//        input = Hex.decode("000102030405060708090A0B0C0D0E0F000102030405060708090A0B0C0D0E0F000102030405060708090A0B0C0D0E0F000102030405060708090A0B0C0D0E0F000102030405060708090A0B0C0D0E0F000102030405060708090A0B0C0D0E0FFFF102030405060708090A0B0C0D0E0F000102030405060708090A0B0C0D0E");
-//        expectedHash = Hex.decode("");
-//        hash = new byte[hashBitSize / 8];
-//
-//        dstu7564 = new DSTU7564Digest(hashBitSize);
-//        dstu7564.update(input, 0, input.length);
-//        dstu7564.doFinal(hash, 0);
-//
-//        if (!Arrays.areEqual(expectedHash, hash))
-//        {
-//            return new SimpleTestResult(false, Name() + ": Failed hash-256 test 7 - expected "
-//                    + Hex.toHexString(expectedHash)
-//                    + " got " + Hex.toHexString(hash));
-//        }
-
         return new SimpleTestResult(true, Name() + ": Okay");
     }
 
