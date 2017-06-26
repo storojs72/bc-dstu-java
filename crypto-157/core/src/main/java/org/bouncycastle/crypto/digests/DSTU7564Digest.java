@@ -3,6 +3,7 @@ package org.bouncycastle.crypto.digests;
 import org.bouncycastle.crypto.ExtendedDigest;
 import org.bouncycastle.util.Arrays;
 import org.bouncycastle.util.Pack;
+import org.bouncycastle.util.encoders.Hex;
 
 /**
  * Reference implementation of national ukrainian standard of hashing transformation DSTU7564.
@@ -64,20 +65,20 @@ public class DSTU7564Digest
             throw new IllegalArgumentException("Hash size is not recommended. Use 256/384/512 instead");
         }
 
-        if (hashSizeBits > 256)
-        {
-            this.blockSize = 1024 / BITS_IN_BYTE;
-            this.columns = NB_1024;
-            this.rounds = NR_1024;
-            this.state = new byte[STATE_BYTES_SIZE_1024][];
-        }
-        else
-        {
-            this.blockSize = 512 / BITS_IN_BYTE;
-            this.columns = NB_512;
+        if(hashSizeBits == 256){
             this.rounds = NR_512;
+            this.columns = NB_512;
+            this.blockSize = ROWS * columns;
             this.state = new byte[STATE_BYTES_SIZE_512][];
         }
+        else {
+            this.rounds = NR_1024;
+            this.columns = NB_1024;
+            this.state = new byte[STATE_BYTES_SIZE_1024][];
+        }
+
+        this.blockSize = ROWS * columns;
+
         for (int bufferIndex = 0; bufferIndex < state.length; bufferIndex++)
         {
             this.state[bufferIndex] = new byte[columns];
@@ -157,27 +158,25 @@ public class DSTU7564Digest
     {
         padded = pad(buf, 0, bufOff);
 
-        processBlock(padded, 0);
+        int paddedLen = padded.length;
+        int paddedOff = 0;
+
+        while (paddedLen != 0) {
+            processBlock(padded, paddedOff);
+            paddedOff += blockSize;
+            paddedLen -= blockSize;
+        }
 
         byte[][] temp = new byte[STATE_BYTES_SIZE_1024][];
 
         for (int bufferIndex = 0; bufferIndex < state.length; bufferIndex++)
         {
-
             temp[bufferIndex] = new byte[ROWS];
-
-//            System.out.println(state.length);
-//            System.out.println(temp.length);
-//            System.out.println(state[bufferIndex].length);
-//            System.out.println(temp[bufferIndex].length);
-
-
             System.arraycopy(state[bufferIndex], 0, temp[bufferIndex], 0, ROWS);
         }
 
         for (int roundIndex = 0; roundIndex < rounds; roundIndex++)
         {
-
             /* AddRoundConstants */
             for (int columnIndex = 0; columnIndex < columns; columnIndex++)
             {
@@ -192,6 +191,7 @@ public class DSTU7564Digest
                     temp[columnIndex][rowIndex] = sBoxes[rowIndex % 4][temp[columnIndex][rowIndex] & 0xFF];
                 }
             }
+
             /* ShiftBytes */
             int shift = -1;
             for (int rowIndex = 0; rowIndex < ROWS; rowIndex++)
@@ -284,20 +284,15 @@ public class DSTU7564Digest
         Arrays.fill(padded, (byte)0);
     }
 
-    private void processBlock(byte[] input, int inOff)
-    {
-
-        for (int bufferIndex = 0; bufferIndex < state.length; bufferIndex++)
-        {
-            Arrays.fill(tempState1[bufferIndex], (byte)0);
-            Arrays.fill(tempState2[bufferIndex], (byte)0);
+    private void processBlock(byte[] input, int inOff) {
+        for (int bufferIndex = 0; bufferIndex < state.length; bufferIndex++) {
+            Arrays.fill(tempState1[bufferIndex], (byte) 0);
+            Arrays.fill(tempState2[bufferIndex], (byte) 0);
         }
 
-        for (int bufferIndex = 0; bufferIndex < ROWS; bufferIndex++)
-        {
-            for (int byteIndex = 0; byteIndex < columns; byteIndex++)
-            {
-                tempState1[byteIndex][bufferIndex] = (byte)(state[byteIndex][bufferIndex] ^ input[byteIndex * ROWS + bufferIndex + inOff]);
+        for (int bufferIndex = 0; bufferIndex < ROWS; bufferIndex++) {
+            for (int byteIndex = 0; byteIndex < columns; byteIndex++) {
+                tempState1[byteIndex][bufferIndex] = (byte) (state[byteIndex][bufferIndex] ^ input[byteIndex * ROWS + bufferIndex + inOff]);
                 tempState2[byteIndex][bufferIndex] = input[byteIndex * ROWS + bufferIndex + inOff];
             }
         }
@@ -305,20 +300,17 @@ public class DSTU7564Digest
         P(); // mixing tempState1
         Q(); // mixing tempState2
 
-        for (int bufferIndex = 0; bufferIndex < ROWS; bufferIndex++)
-        {
-            for (int byteIndex = 0; byteIndex < columns; byteIndex++)
-            {
-                state[byteIndex][bufferIndex] ^= (byte)(tempState1[byteIndex][bufferIndex] ^ tempState2[byteIndex][bufferIndex]);
-            }
-        }
+         for (int bufferIndex = 0; bufferIndex < ROWS; bufferIndex++) {
+             for (int byteIndex = 0; byteIndex < columns; byteIndex++) {
+                 state[byteIndex][bufferIndex] ^= (byte) (tempState1[byteIndex][bufferIndex] ^ tempState2[byteIndex][bufferIndex]);
+             }
+         }
     }
 
     private void Q()
     {
         for (int roundIndex = 0; roundIndex < rounds; roundIndex++)
         {
-
             /* AddRoundConstantsQ */
             for (int columnIndex = 0; columnIndex < columns; columnIndex++)
             {
@@ -396,7 +388,6 @@ public class DSTU7564Digest
             /* AddRoundConstants */
             for (int columnIndex = 0; columnIndex < columns; columnIndex++)
             {
-                //System.out.println((byte)((columnIndex * 0x10) ^ roundIndex));
                 tempState1[columnIndex][0] ^= (byte)((columnIndex * 0x10) ^ roundIndex); // Defined in standard
             }
 
@@ -459,7 +450,6 @@ public class DSTU7564Digest
 
     private byte multiplyGF(byte x, byte y)
     {
-
         byte result = 0;
         byte highestBit;
         for (int bitIndex = 0; bitIndex < BITS_IN_BYTE; bitIndex++)
@@ -485,7 +475,6 @@ public class DSTU7564Digest
 
     private byte[] pad(byte[] in, int inOff, int len)
     {
-
         byte[] padded;
         if (blockSize - len < 13)         // terminator byte + 96 bits of length
         {
@@ -499,6 +488,7 @@ public class DSTU7564Digest
         System.arraycopy(in, inOff, padded, 0, len);
 
         padded[len] = (byte)0x80; // Defined in standard;
+
         // Defined in standard;
         Pack.longToLittleEndian(inputLength * BITS_IN_BYTE, padded, padded.length - 12);
 
