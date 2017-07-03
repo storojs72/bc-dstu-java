@@ -105,4 +105,5 @@ public interface UAObjectIdentifiers
     static final ASN1ObjectIdentifier dstu7624kw_256 = new ASN1ObjectIdentifier("1.2.804.2.1.1.1.1.1.3.10.2");
     /** DSTU7624 in key wrap (KW) mode with 512 bit block/key presentation */
     static final ASN1ObjectIdentifier dstu7624kw_512 = new ASN1ObjectIdentifier("1.2.804.2.1.1.1.1.1.3.10.3");
+
 }
