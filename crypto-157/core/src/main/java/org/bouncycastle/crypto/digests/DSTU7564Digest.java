@@ -2,6 +2,7 @@ package org.bouncycastle.crypto.digests;
 
 import org.bouncycastle.crypto.ExtendedDigest;
 import org.bouncycastle.util.Arrays;
+import org.bouncycastle.util.Memoable;
 import org.bouncycastle.util.Pack;
 import org.bouncycastle.util.encoders.Hex;
 
@@ -11,8 +12,7 @@ import org.bouncycastle.util.encoders.Hex;
  * https://github.com/Roman-Oliynykov/Kupyna-reference
  */
 public class DSTU7564Digest
-        implements ExtendedDigest
-{
+        implements ExtendedDigest, Memoable {
 
     private static final int ROWS = 8;
     private static final int REDUCTIONAL_POLYNOMIAL = 0x011d;
@@ -53,6 +53,34 @@ public class DSTU7564Digest
     private long inputLength;
     private int bufOff;
     private byte[] buf;
+
+    public DSTU7564Digest (DSTU7564Digest digest){
+        copyIn(digest);
+    }
+
+    private void copyIn(DSTU7564Digest digest){
+        this.hashSize = digest.hashSize;
+        this.blockSize = digest.blockSize;
+
+        this.columns = digest.columns;
+        this.rounds = digest.rounds;
+
+        this.padded = Arrays.clone(digest.padded);
+        this.state = Arrays.clone(digest.state);
+
+        this.tempState1 = Arrays.clone(digest.tempState1);
+        this.tempState2 = Arrays.clone(digest.tempState2);
+
+        this.tempBuffer = Arrays.clone(digest.tempBuffer);
+        this.mixColumnsResult = Arrays.clone(digest.mixColumnsResult);
+
+        this.tempLongBuffer = Arrays.clone(digest.tempLongBuffer);
+
+        this.inputLength = digest.inputLength;
+        this.bufOff = digest.bufOff;
+        this.buf = Arrays.clone(digest.buf);
+    }
+
 
     public DSTU7564Digest(int hashSizeBits)
     {
@@ -583,4 +611,17 @@ public class DSTU7564Digest
                     }
     };
     //endregion
+
+
+    public Memoable copy()
+    {
+        return new DSTU7564Digest(this);
+    }
+
+    public void reset(Memoable other)
+    {
+        DSTU7564Digest d = (DSTU7564Digest)other;
+
+        copyIn(d);
+    }
 }

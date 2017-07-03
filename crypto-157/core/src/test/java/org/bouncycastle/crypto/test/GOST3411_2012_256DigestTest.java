@@ -3,12 +3,11 @@ package org.bouncycastle.crypto.test;
 import java.util.ArrayList;
 
 import org.bouncycastle.crypto.Digest;
+import org.bouncycastle.crypto.digests.DSTU7564Digest;
 import org.bouncycastle.crypto.digests.GOST3411_2012_256Digest;
-import org.bouncycastle.crypto.digests.GOST3411_2012_512Digest;
 import org.bouncycastle.crypto.macs.HMac;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.util.Arrays;
-import org.bouncycastle.util.Strings;
 import org.bouncycastle.util.encoders.Hex;
 
 public class GOST3411_2012_256DigestTest

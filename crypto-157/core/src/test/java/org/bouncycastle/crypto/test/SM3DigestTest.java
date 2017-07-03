@@ -1,6 +1,7 @@
 package org.bouncycastle.crypto.test;
 
 import org.bouncycastle.crypto.Digest;
+import org.bouncycastle.crypto.digests.DSTU7564Digest;
 import org.bouncycastle.crypto.digests.SM3Digest;
 import org.bouncycastle.util.encoders.Hex;
 

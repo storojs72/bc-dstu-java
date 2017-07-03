@@ -1,6 +1,7 @@
 package org.bouncycastle.crypto.test;
 
 import org.bouncycastle.crypto.Digest;
+import org.bouncycastle.crypto.digests.DSTU7564Digest;
 import org.bouncycastle.crypto.digests.EncodableDigest;
 import org.bouncycastle.util.Arrays;
 import org.bouncycastle.util.Memoable;

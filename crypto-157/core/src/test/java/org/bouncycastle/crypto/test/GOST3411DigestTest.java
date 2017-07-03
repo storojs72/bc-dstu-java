@@ -1,6 +1,7 @@
 package org.bouncycastle.crypto.test;
 
 import org.bouncycastle.crypto.Digest;
+import org.bouncycastle.crypto.digests.DSTU7564Digest;
 import org.bouncycastle.crypto.digests.GOST3411Digest;
 import org.bouncycastle.crypto.generators.PKCS5S1ParametersGenerator;
 import org.bouncycastle.crypto.macs.HMac;

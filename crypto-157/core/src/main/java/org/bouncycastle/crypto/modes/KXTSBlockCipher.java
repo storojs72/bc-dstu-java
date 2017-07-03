@@ -1,4 +1,4 @@
-package org.bouncycastle.crypto.modes.dstu7624modes;
+package org.bouncycastle.crypto.modes;
 
 import org.bouncycastle.crypto.BlockCipher;
 import org.bouncycastle.crypto.BufferedBlockCipher;

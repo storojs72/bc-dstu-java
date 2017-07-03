@@ -1,19 +1,21 @@
-package org.bouncycastle.crypto.modes.dstu7624modes;
+package org.bouncycastle.crypto.modes;
+
+import java.io.ByteArrayOutputStream;
 
 import org.bouncycastle.crypto.BlockCipher;
 import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.DataLengthException;
 import org.bouncycastle.crypto.InvalidCipherTextException;
-import org.bouncycastle.crypto.modes.AEADBlockCipher;
 import org.bouncycastle.crypto.params.AEADParameters;
 import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.bouncycastle.util.Arrays;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
  * Implementation of DSTU7624 CCM mode
  */
-public class KCCMBlockCipher implements AEADBlockCipher {
+public class KCCMBlockCipher
+        implements AEADBlockCipher
+{
 
     private static final int BYTES_IN_INT = 4;
     private static final int BITS_IN_BYTE = 8;
@@ -39,6 +41,9 @@ public class KCCMBlockCipher implements AEADBlockCipher {
     private byte[] counter;
 
 
+    private ExposedByteArrayOutputStream associatedText = new ExposedByteArrayOutputStream();
+    private ExposedByteArrayOutputStream data = new ExposedByteArrayOutputStream();
+
     /*
     *  Nb is a parameter specified in CCM mode of DSTU7624 standard.
     *  This parameter specifies maximum possible length of input. It should
@@ -51,7 +56,7 @@ public class KCCMBlockCipher implements AEADBlockCipher {
 
     public void setNb(int Nb)
     {
-        if (Nb == 4 || Nb == 6 ||Nb == 8 )
+        if (Nb == 4 || Nb == 6 || Nb == 8)
         {
             Nb_ = Nb;
         }
@@ -61,8 +66,8 @@ public class KCCMBlockCipher implements AEADBlockCipher {
         }
     }
 
-    public KCCMBlockCipher(BlockCipher engine) {
-
+    public KCCMBlockCipher(BlockCipher engine)
+    {
         this.engine = engine;
         this.macSize = engine.getBlockSize();
         this.nonce = new byte[engine.getBlockSize()];
@@ -73,17 +78,20 @@ public class KCCMBlockCipher implements AEADBlockCipher {
         this.buffer = new byte[engine.getBlockSize()];
         this.s = new byte[engine.getBlockSize()];
         this.counter = new byte[engine.getBlockSize()];
-
     }
 
-    public void init(boolean forEncryption, CipherParameters params) throws IllegalArgumentException {
+    public void init(boolean forEncryption, CipherParameters params)
+            throws IllegalArgumentException
+    {
 
         CipherParameters cipherParameters;
-        if (params instanceof AEADParameters){
+        if (params instanceof AEADParameters)
+        {
 
             AEADParameters parameters = (AEADParameters)params;
 
-            if (parameters.getMacSize() > MAX_MAC_BIT_LENGTH || parameters.getMacSize() < MIN_MAC_BIT_LENGTH || parameters.getMacSize() % 8 != 0){
+            if (parameters.getMacSize() > MAX_MAC_BIT_LENGTH || parameters.getMacSize() < MIN_MAC_BIT_LENGTH || parameters.getMacSize() % 8 != 0)
+            {
                 throw new IllegalArgumentException("Invalid mac size specified");
             }
 
@@ -92,13 +100,15 @@ public class KCCMBlockCipher implements AEADBlockCipher {
             initialAssociatedText = parameters.getAssociatedText();
             cipherParameters = parameters.getKey();
         }
-        else if (params instanceof ParametersWithIV){
-            nonce = ((ParametersWithIV) params).getIV();
+        else if (params instanceof ParametersWithIV)
+        {
+            nonce = ((ParametersWithIV)params).getIV();
             macSize = engine.getBlockSize(); // use default blockSize for MAC if it is not specified
             initialAssociatedText = null;
-            cipherParameters = ((ParametersWithIV) params).getParameters();
+            cipherParameters = ((ParametersWithIV)params).getParameters();
         }
-        else {
+        else
+        {
             throw new IllegalArgumentException("Invalid parameters specified");
         }
 
@@ -107,30 +117,47 @@ public class KCCMBlockCipher implements AEADBlockCipher {
         engine.init(true, cipherParameters);
 
         counter[0] = 0x01; // defined in standard
+
+        if (initialAssociatedText != null)
+        {
+            processAADBytes(initialAssociatedText, 0, initialAssociatedText.length);
+        }
     }
 
-    public String getAlgorithmName() {
-        return engine.getAlgorithmName() + "/CCM";
+    public String getAlgorithmName()
+    {
+        return engine.getAlgorithmName() + "/KCCM";
     }
 
-    public BlockCipher getUnderlyingCipher() {
+    public BlockCipher getUnderlyingCipher()
+    {
         return engine;
     }
 
-    public void processAADByte(byte in) {
-        throw new NotImplementedException();
+    public void processAADByte(byte in)
+    {
+        associatedText.write(in);
     }
-    public void processAADBytes(byte[] authText, int authOff, int inLen){
-        if (authText.length - authOff < engine.getBlockSize()){
-            throw new IllegalArgumentException("AuthText buffer too short");
+
+    public void processAADBytes(byte[] in, int inOff, int len)
+    {
+        associatedText.write(in, inOff, len);
+    }
+
+    private void processAAD(byte[] assocText, int assocOff, int assocLen, int dataLen)
+    {
+        if (assocLen - assocOff < engine.getBlockSize())
+        {
+            throw new IllegalArgumentException("authText buffer too short");
         }
-        if (authText.length % engine.getBlockSize() != 0){
-            throw new IllegalArgumentException("Padding not supported");
+        if (assocLen % engine.getBlockSize() != 0)
+        {
+            throw new IllegalArgumentException("padding not supported");
         }
 
-        System.arraycopy(nonce, 0, G1, 0, nonce.length - Nb_ - 1 );
+        System.arraycopy(nonce, 0, G1, 0, nonce.length - Nb_ - 1);
 
-        intToBytes(inLen, buffer, 0); // for G1
+        intToBytes(dataLen, buffer, 0); // for G1
 
         System.arraycopy(buffer, 0, G1, nonce.length - Nb_ - 1, BYTES_IN_INT);
 
@@ -138,12 +165,13 @@ public class KCCMBlockCipher implements AEADBlockCipher {
 
         engine.processBlock(G1, 0, macBlock, 0);
 
-        intToBytes(authText.length, buffer, 0); // for G2
+        intToBytes(assocLen, buffer, 0); // for G2
 
-        if (authText.length <= engine.getBlockSize() - Nb_){
-            for (int byteIndex = 0; byteIndex < authText.length; byteIndex++)
+        if (assocLen <= engine.getBlockSize() - Nb_)
+        {
+            for (int byteIndex = 0; byteIndex < assocLen; byteIndex++)
             {
-                buffer[byteIndex + Nb_] ^= authText[authOff + byteIndex];
+                buffer[byteIndex + Nb_] ^= assocText[assocOff + byteIndex];
             }
 
             for (int byteIndex = 0; byteIndex < engine.getBlockSize(); byteIndex++)
@@ -163,91 +191,138 @@ public class KCCMBlockCipher implements AEADBlockCipher {
 
         engine.processBlock(macBlock, 0, macBlock, 0);
 
-        int authLen = authText.length;
-        while (authLen != 0){
-            for (int byteIndex = 0; byteIndex < engine.getBlockSize(); byteIndex++){
-                macBlock[byteIndex] ^= authText[byteIndex + authOff];
+        int authLen = assocLen;
+        while (authLen != 0)
+        {
+            for (int byteIndex = 0; byteIndex < engine.getBlockSize(); byteIndex++)
+            {
+                macBlock[byteIndex] ^= assocText[byteIndex + assocOff];
             }
 
             engine.processBlock(macBlock, 0, macBlock, 0);
 
-            authOff += engine.getBlockSize();
+            assocOff += engine.getBlockSize();
             authLen -= engine.getBlockSize();
         }
-
-
-
     }
 
-    public int processByte(byte in, byte[] out, int outOff) throws DataLengthException {
-        throw new NotImplementedException();
+    public int processByte(byte in, byte[] out, int outOff)
+            throws DataLengthException, IllegalStateException
+    {
+        data.write(in);
+
+        return 0;
     }
-    public int processBytes(byte[] in, int inOff, int len, byte[] out, int outOff) throws DataLengthException {
 
-        if (in.length - inOff < len){
-            throw new IllegalArgumentException("Input buffer too short");
+    public int processBytes(byte[] in, int inOff, int inLen, byte[] out, int outOff)
+            throws DataLengthException, IllegalStateException
+    {
+        if (in.length < (inOff + inLen))
+        {
+            throw new DataLengthException("input buffer too short");
+        }
+        data.write(in, inOff, inLen);
+
+        return 0;
+    }
+
+    public int processPacket(byte[] in, int inOff, int len, byte[] out, int outOff)
+            throws IllegalStateException, InvalidCipherTextException
+    {
+        if (in.length - inOff < len)
+        {
+            throw new IllegalArgumentException("input buffer too short");
         }
 
-        if (out.length - outOff < len){
-            throw new IllegalArgumentException("Output buffer too short");
+        if (out.length - outOff < len)
+        {
+            throw new IllegalArgumentException("output buffer too short");
         }
 
-        if (initialAssociatedText != null){
-            processAADBytes(initialAssociatedText, 0, initialAssociatedText.length);
+        if (associatedText.size() > 0)
+        {
+            if (forEncryption)
+            {
+                processAAD(associatedText.getBuffer(), 0, associatedText.size(), data.size());
+            }
+            else
+            {
+                processAAD(associatedText.getBuffer(), 0, associatedText.size(), data.size() - macSize);
+            }
         }
 
-        if (forEncryption){
-            if ((len % engine.getBlockSize()) != 0){
-                throw new DataLengthException("Partial blocks not supported");
+        if (forEncryption)
+        {
+            if ((len % engine.getBlockSize()) != 0)
+            {
+                throw new DataLengthException("partial blocks not supported");
             }
 
             CalculateMac(in, inOff, len);
-            engine.processBlock(nonce, 0, s,0);
+            engine.processBlock(nonce, 0, s, 0);
 
             int totalLength = len;
-            while(totalLength > 0){
+            while (totalLength > 0)
+            {
                 ProcessBlock(in, inOff, len, out, outOff);
                 totalLength -= engine.getBlockSize();
                 inOff += engine.getBlockSize();
                 outOff += engine.getBlockSize();
             }
 
-            for(int byteIndex = 0; byteIndex < counter.length; byteIndex++){
+            for (int byteIndex = 0; byteIndex < counter.length; byteIndex++)
+            {
                 s[byteIndex] += counter[byteIndex];
             }
 
             engine.processBlock(s, 0, buffer, 0);
+
+            for (int byteIndex = 0; byteIndex < macSize; byteIndex++)
+            {
+                out[outOff + byteIndex] = (byte)(buffer[byteIndex] ^ macBlock[byteIndex]);
+            }
+
+            reset();
+
+            return len + macSize;
         }
-        else {
-            if ((len - macSize) % engine.getBlockSize() != 0){
-                throw new DataLengthException("Partial blocks not supported");
+        else
+        {
+            if ((len - macSize) % engine.getBlockSize() != 0)
+            {
+                throw new DataLengthException("partial blocks not supported");
             }
 
             engine.processBlock(nonce, 0, s, 0);
 
             int blocks = len / engine.getBlockSize();
 
-            for (int blockNum = 0; blockNum < blocks; blockNum++){
+            for (int blockNum = 0; blockNum < blocks; blockNum++)
+            {
                 ProcessBlock(in, inOff, len, out, outOff);
 
                 inOff += engine.getBlockSize();
                 outOff += engine.getBlockSize();
             }
 
-            if (len > inOff){
-                for (int byteIndex = 0; byteIndex < counter.length; byteIndex++){
+            if (len > inOff)
+            {
+                for (int byteIndex = 0; byteIndex < counter.length; byteIndex++)
+                {
                     s[byteIndex] += counter[byteIndex];
                 }
 
                 engine.processBlock(s, 0, buffer, 0);
 
-                for (int byteIndex = 0; byteIndex < macSize; byteIndex++){
+                for (int byteIndex = 0; byteIndex < macSize; byteIndex++)
+                {
                     out[outOff + byteIndex] = (byte)(buffer[byteIndex] ^ in[inOff + byteIndex]);
                 }
                 outOff += macSize;
             }
 
-            for (int byteIndex = 0; byteIndex < counter.length; byteIndex++){
+            for (int byteIndex = 0; byteIndex < counter.length; byteIndex++)
+            {
                 s[byteIndex] += counter[byteIndex];
             }
 
@@ -255,31 +330,48 @@ public class KCCMBlockCipher implements AEADBlockCipher {
 
             System.arraycopy(out, outOff - macSize, buffer, 0, macSize);
 
-        }
-        return len;
+            CalculateMac(out, 0, outOff - macSize);
 
+            System.arraycopy(macBlock, 0, mac, 0, macSize);
+
+            byte[] calculatedMac = new byte[macSize];
+
+            System.arraycopy(buffer, 0, calculatedMac, 0, macSize);
+
+            if (!Arrays.constantTimeAreEqual(mac, calculatedMac))
+            {
+                throw new InvalidCipherTextException("mac check failed");
+            }
+
+            reset();
+
+            return len;
+        }
     }
 
-    private void ProcessBlock(byte[] input, int inOff, int len, byte[] output, int outOff){
+    private void ProcessBlock(byte[] input, int inOff, int len, byte[] output, int outOff)
+    {
 
-        for (int byteIndex = 0; byteIndex < counter.length; byteIndex++){
+        for (int byteIndex = 0; byteIndex < counter.length; byteIndex++)
+        {
             s[byteIndex] += counter[byteIndex];
         }
 
         engine.processBlock(s, 0, buffer, 0);
 
-        for (int byteIndex = 0; byteIndex < engine.getBlockSize(); byteIndex++) {
-            output[outOff + byteIndex] = (byte) (buffer[byteIndex] ^ input[inOff + byteIndex]);
+        for (int byteIndex = 0; byteIndex < engine.getBlockSize(); byteIndex++)
+        {
+            output[outOff + byteIndex] = (byte)(buffer[byteIndex] ^ input[inOff + byteIndex]);
         }
     }
 
-    private void CalculateMac(byte[] authText, int authOff, int len){
-
-
-
+    private void CalculateMac(byte[] authText, int authOff, int len)
+    {
         int totalLen = len;
-        while(totalLen > 0){
-            for (int byteIndex = 0; byteIndex < engine.getBlockSize(); byteIndex++){
+        while (totalLen > 0)
+        {
+            for (int byteIndex = 0; byteIndex < engine.getBlockSize(); byteIndex++)
+            {
                 macBlock[byteIndex] ^= authText[authOff + byteIndex];
             }
 
@@ -290,56 +382,46 @@ public class KCCMBlockCipher implements AEADBlockCipher {
         }
     }
 
-    public int doFinal(byte[] out, int outOff) throws IllegalStateException, InvalidCipherTextException {
-        if (forEncryption){
-            for (int byteIndex = 0; byteIndex < macSize; byteIndex++){
-                out[outOff + byteIndex] = (byte)(buffer[byteIndex] ^ macBlock[byteIndex]);
-            }
+    public int doFinal(byte[] out, int outOff)
+            throws IllegalStateException, InvalidCipherTextException
+    {
+        int len = processPacket(data.getBuffer(), 0, data.size(), out, outOff);
 
-            reset();
+        reset();
 
-            return macSize;
-        }
-        else {
-            CalculateMac(out, 0, outOff - macSize);
-
-            System.arraycopy(macBlock, 0, mac, 0, macSize);
-
-            byte[] calculatedMac = new byte[macSize];
-
-            System.arraycopy(buffer, 0, calculatedMac, 0, macSize);
-
-            if(!Arrays.areEqual(mac, calculatedMac)){
-                throw new InvalidCipherTextException("Mac check failed");
-            }
-
-            reset();
-
-            return 0;
-
-        }
-    }
-
-    public byte[] getMac() {
-        System.arraycopy(macBlock, 0, mac, 0, macSize);
-        return mac;
-    }
-
-    public int getUpdateOutputSize(int len) {
         return len;
     }
 
-    public int getOutputSize(int len) {
+    public byte[] getMac()
+    {
+        System.arraycopy(macBlock, 0, mac, 0, macSize);
+        return Arrays.clone(mac);
+    }
+
+    public int getUpdateOutputSize(int len)
+    {
+        return len;
+    }
+
+    public int getOutputSize(int len)
+    {
         return len + macSize;
     }
 
-    public void reset() {
+    public void reset()
+    {
         Arrays.fill(G1, (byte)0);
         Arrays.fill(buffer, (byte)0);
         Arrays.fill(counter, (byte)0);
         counter[0] = 0x01;
-    }
+        data.reset();
+        associatedText.reset();
 
+        if (initialAssociatedText != null)
+        {
+            processAADBytes(initialAssociatedText, 0, initialAssociatedText.length);
+        }
+    }
 
 
     private void intToBytes(
@@ -398,5 +480,17 @@ public class KCCMBlockCipher implements AEADBlockCipher {
 
     }
 
+    private class ExposedByteArrayOutputStream
+            extends ByteArrayOutputStream
+    {
+        public ExposedByteArrayOutputStream()
+        {
+        }
+
+        public byte[] getBuffer()
+        {
+            return this.buf;
+        }
+    }
 
 }

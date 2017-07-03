@@ -1,28 +1,27 @@
 package org.bouncycastle.crypto.test;
-import org.bouncycastle.crypto.engines.DSTU7624WrapEngine;
-import org.bouncycastle.crypto.macs.DSTU7624Mac;
-import org.bouncycastle.crypto.modes.*;
-import org.bouncycastle.crypto.modes.dstu7624modes.KCCMBlockCipher;
-import org.bouncycastle.crypto.modes.dstu7624modes.KCTRBlockCipher;
-import org.bouncycastle.crypto.modes.dstu7624modes.KGCMBlockCipher;
-import org.bouncycastle.crypto.modes.dstu7624modes.KXTSBlockCipher;
-import org.bouncycastle.crypto.params.AEADParameters;
-import org.bouncycastle.util.Arrays;
-import org.bouncycastle.util.test.SimpleTest;
-import org.bouncycastle.util.encoders.Hex;
 
 import org.bouncycastle.crypto.engines.DSTU7624Engine;
-
+import org.bouncycastle.crypto.engines.DSTU7624WrapEngine;
+import org.bouncycastle.crypto.macs.DSTU7624Mac;
+import org.bouncycastle.crypto.modes.CBCBlockCipher;
+import org.bouncycastle.crypto.modes.CFBBlockCipher;
+import org.bouncycastle.crypto.modes.KCCMBlockCipher;
+import org.bouncycastle.crypto.modes.KCTRBlockCipher;
+import org.bouncycastle.crypto.modes.KGCMBlockCipher;
+import org.bouncycastle.crypto.modes.KXTSBlockCipher;
+import org.bouncycastle.crypto.modes.OFBBlockCipher;
+import org.bouncycastle.crypto.params.AEADParameters;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.params.ParametersWithIV;
-import org.bouncycastle.util.test.SimpleTestResult;
-import org.bouncycastle.util.test.TestResult;
+import org.bouncycastle.util.Arrays;
+import org.bouncycastle.util.encoders.Hex;
+import org.bouncycastle.util.test.SimpleTest;
 
 public class DSTU7624Test
         extends CipherTest
 {
 
-    static SimpleTest[]  tests =
+    static SimpleTest[] tests =
             {
                     //ECB mode
                     new BlockCipherVectorTest(0, new DSTU7624Engine(128, 128), new KeyParameter(Hex.decode("000102030405060708090A0B0C0D0E0F")), "101112131415161718191A1B1C1D1E1F", "81BF1C7D779BAC20E1C9EA39B4D2AD06"),
@@ -57,73 +56,52 @@ public class DSTU7624Test
                     new BlockCipherVectorTest(23, new OFBBlockCipher(new DSTU7624Engine(512, 512), 512), new ParametersWithIV(new KeyParameter(Hex.decode("3F3E3D3C3B3A393837363534333231302F2E2D2C2B2A292827262524232221201F1E1D1C1B1A191817161514131211100F0E0D0C0B0A09080706050403020100")), Hex.decode("7F7E7D7C7B7A797877767574737271706F6E6D6C6B6A696867666564636261605F5E5D5C5B5A595857565554535251504F4E4D4C4B4A49484746454443424140")), "06C061A4A66DFC0910034B3CFBDC4206D8908241C56BF41C4103CFD6DF322210B87F57EAE9F9AD815E606A7D1E8E6BD7CB1EBFBDBCB085C2D06BF3CC1586CB2EE1D81D38437F425131321647E42F5DE309D33F25B89DE37124683E4B44824FC56D", "EFEEEDECEBEAE9E8E7E6E5E4E3E2E1E0DFDEDDDCDBDAD9D8D7D6D5D4D3D2D1D0CFCECDCCCBCAC9C8C7C6C5C4C3C2C1C0BFBEBDBCBBBAB9B8B7B6B5B4B3B2B1B0AFAEADACABAAA9A8A7A6A5A4A3A2A1A09F9E9D9C9B9A999897969594939291908F"),
 
                     //CTR mode
-                    new BlockCipherVectorTest(24, new KCTRBlockCipher(new DSTU7624Engine(128, 128)), new ParametersWithIV(new KeyParameter(Hex.decode("000102030405060708090A0B0C0D0E0F")), Hex.decode("101112131415161718191A1B1C1D1E1F")), "303132333435363738393A3B3C3D3E3F404142434445464748494A4B4C4D4E4F", "B91A7B8790BBCFCFE65D04E5538E98E216AC209DA33122FDA596E8928070BE51")
+                    new BlockCipherVectorTest(24, new KCTRBlockCipher(new DSTU7624Engine(128, 128)), new ParametersWithIV(new KeyParameter(Hex.decode("000102030405060708090A0B0C0D0E0F")), Hex.decode("101112131415161718191A1B1C1D1E1F")), "202122232425262728292A2B2C2D2E2F303132333435363738393A3B3C3D3E3F404142434445464748", "A90A6B9780ABDFDFF64D14F5439E88F266DC50EDD341528DD5E698E2F000CE21F872DAF9FE1811844A"),
+                    new BlockCipherVectorTest(25, new KCTRBlockCipher(new DSTU7624Engine(128, 128)), new ParametersWithIV(new KeyParameter(Hex.decode("000102030405060708090A0B0C0D0E0F")), Hex.decode("101112131415161718191A1B1C1D1E1F")), "303132333435363738393A3B3C3D3E3F404142434445464748494A4B4C4D4E4F", "B91A7B8790BBCFCFE65D04E5538E98E216AC209DA33122FDA596E8928070BE51"),
+                    new StreamCipherVectorTest(26, new KCTRBlockCipher(new DSTU7624Engine(128, 128)), new ParametersWithIV(new KeyParameter(Hex.decode("000102030405060708090A0B0C0D0E0F")), Hex.decode("101112131415161718191A1B1C1D1E1F")), "202122232425262728292A2B2C2D2E2F303132333435363738393A3B3C3D3E3F404142434445464748", "A90A6B9780ABDFDFF64D14F5439E88F266DC50EDD341528DD5E698E2F000CE21F872DAF9FE1811844A"),
+                    new StreamCipherVectorTest(27, new KCTRBlockCipher(new DSTU7624Engine(128, 128)), new ParametersWithIV(new KeyParameter(Hex.decode("000102030405060708090A0B0C0D0E0F")), Hex.decode("101112131415161718191A1B1C1D1E1F")), "303132333435363738393A3B3C3D3E3F404142434445464748494A4B4C4D4E4F", "B91A7B8790BBCFCFE65D04E5538E98E216AC209DA33122FDA596E8928070BE51")
             };
 
 
-    public String getName()
-    {
-        return "DSTU7624";
-    }
 
     public DSTU7624Test()
     {
         super(tests, new DSTU7624Engine(128, 128), new KeyParameter(new byte[16]));
     }
 
-    public static void main(
-            String[]    args)
+    public String getName()
     {
-        DSTU7624Test t = new DSTU7624Test();
-        TestResult result = t.perform();
+        return "DSTU7624";
+    }
 
-        if (!result.isSuccessful()) {
-            System.out.println(result);
-            return;
-        }
+    public void performTest()
+            throws Exception
+    {
+        super.performTest();
 
-        result = MacTests();
-        if (!result.isSuccessful()){
-            System.out.println(result);
-            return;
-        }
+        MacTests();
+        KeyWrapTests();
+        CCMModeTests();
+        XTSModeTests();
+        GCMModeTests();
+    }
 
-        result = KeyWrapTests();
-        if (!result.isSuccessful()){
-            System.out.println(result);
-            return;
-        }
-
-        result = CCMModeTests();
-        if (!result.isSuccessful()){
-            System.out.println(result);
-            return;
-        }
-
-        result = XTSModeTests();
-        if (!result.isSuccessful()){
-            System.out.println(result);
-            return;
-        }
-
-        result = GCMModeTests();
-        if (!result.isSuccessful()){
-            System.out.println(result);
-            return;
-        }
-
-        System.out.println(result);
+    public static void main(
+            String[] args)
+    {
+        runTest(new DSTU7624Test());
     }
 
 
-    private static SimpleTestResult MacTests() {
+    private void MacTests()
+    {
 
         //test 1
         byte[] key = Hex.decode("000102030405060708090A0B0C0D0E0F");
 
         byte[] authtext = Hex.decode("202122232425262728292A2B2C2D2E2F" +
-                                          "303132333435363738393A3B3C3D3E3F" +
-                                          "404142434445464748494A4B4C4D4E4F");
+                "303132333435363738393A3B3C3D3E3F" +
+                "404142434445464748494A4B4C4D4E4F");
 
         byte[] expectedMac = Hex.decode("123B4EAB8E63ECF3E645A99C1115E241");
 
@@ -134,8 +112,9 @@ public class DSTU7624Test
         dstu7624Mac.update(authtext, 0, authtext.length);
         dstu7624Mac.doFinal(mac, 0);
 
-        if (!Arrays.areEqual(mac, expectedMac)) {
-            return new SimpleTestResult(false, Name() + ": Failed MAC test 1 - expected "
+        if (!Arrays.areEqual(mac, expectedMac))
+        {
+            fail("Failed MAC test 1 - expected "
                     + Hex.toHexString(expectedMac)
                     + " got " + Hex.toHexString(mac));
         }
@@ -165,14 +144,15 @@ public class DSTU7624Test
 
         if (!Arrays.areEqual(mac, expectedMac))
         {
-            return new SimpleTestResult(false, Name() + ": Failed MAC test 2 - expected "
+            fail("Failed MAC test 2 - expected "
                     + Hex.toHexString(expectedMac)
                     + " got " + Hex.toHexString(mac));
         }
-
-        return new SimpleTestResult(true, Name() + ": Okay");
     }
-    private static SimpleTestResult KeyWrapTests(){
+
+    private void KeyWrapTests()
+            throws Exception
+    {
 
         //test 1
         byte[] key = Hex.decode("000102030405060708090A0B0C0D0E0F");
@@ -188,7 +168,7 @@ public class DSTU7624Test
 
         if (!Arrays.areEqual(output, expectedWrappedText))
         {
-            return new SimpleTestResult(false, Name() + ": Failed KW (wrapping) test 1 - expected "
+            fail("Failed KW (wrapping) test 1 - expected "
                     + Hex.toHexString(expectedWrappedText)
                     + " got " + Hex.toHexString(output));
         }
@@ -196,17 +176,13 @@ public class DSTU7624Test
 
         wrapper.init(false, new KeyParameter(key));
 
-        try {
-            output = wrapper.unwrap(expectedWrappedText, 0, expectedWrappedText.length);
+        output = wrapper.unwrap(expectedWrappedText, 0, expectedWrappedText.length);
 
-            if (!Arrays.areEqual(output, textToWrap)) {
-                return new SimpleTestResult(false, Name() + ": Failed KW (unwrapping) test 1 - expected "
-                        + Hex.toHexString(textToWrap)
-                        + " got " + Hex.toHexString(output));
-            }
-        }
-        catch (Exception ex) {
-            System.out.println(ex.getMessage());
+        if (!Arrays.areEqual(output, textToWrap))
+        {
+            fail("Failed KW (unwrapping) test 1 - expected "
+                    + Hex.toHexString(textToWrap)
+                    + " got " + Hex.toHexString(output));
         }
 
         //test 2
@@ -222,31 +198,21 @@ public class DSTU7624Test
 
         if (!Arrays.areEqual(output, expectedWrappedText))
         {
-            return new SimpleTestResult(false, Name() + ": Failed KW (wrapping) test 2 - expected "
+            fail("Failed KW (wrapping) test 2 - expected "
                     + Hex.toHexString(expectedWrappedText)
                     + " got " + Hex.toHexString(output));
         }
 
 
         wrapper.init(false, new KeyParameter(key));
-        try
+
+        output = wrapper.unwrap(expectedWrappedText, 0, expectedWrappedText.length);
+        if (!Arrays.areEqual(output, textToWrap))
         {
-            output = wrapper.unwrap(expectedWrappedText, 0, expectedWrappedText.length);
-            if (!Arrays.areEqual(output, textToWrap))
-            {
-                return new SimpleTestResult(false, Name() + ": Failed KW (unwrapping) test 2 - expected "
-                        + Hex.toHexString(textToWrap)
-                        + " got " + Hex.toHexString(output));
-            }
+            fail("Failed KW (unwrapping) test 2 - expected "
+                    + Hex.toHexString(textToWrap)
+                    + " got " + Hex.toHexString(output));
         }
-        catch(Exception ex)
-        {
-            System.out.println(ex.getMessage());
-        }
-
-
-
-
 
         //test 3
         key = Hex.decode("000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F");
@@ -262,23 +228,20 @@ public class DSTU7624Test
 
         if (!Arrays.areEqual(output, expectedWrappedText))
         {
-            return new SimpleTestResult(false, Name() + ": Failed KW (wrapping) test 3 - expected "
+            fail("Failed KW (wrapping) test 3 - expected "
                     + Hex.toHexString(expectedWrappedText)
                     + " got " + Hex.toHexString(output));
         }
 
         wrapper.init(false, new KeyParameter(key));
-        try {
-            output = wrapper.unwrap(expectedWrappedText, 0, expectedWrappedText.length);
 
-            if (!Arrays.areEqual(output, textToWrap)) {
-                return new SimpleTestResult(false, Name() + ": Failed KW (unwrapping) test 3 - expected "
-                        + Hex.toHexString(textToWrap)
-                        + " got " + Hex.toHexString(output));
-            }
-        }
-        catch (Exception ex){
-            System.out.println(ex.getMessage());
+        output = wrapper.unwrap(expectedWrappedText, 0, expectedWrappedText.length);
+
+        if (!Arrays.areEqual(output, textToWrap))
+        {
+            fail("Failed KW (unwrapping) test 3 - expected "
+                    + Hex.toHexString(textToWrap)
+                    + " got " + Hex.toHexString(output));
         }
 
         //test 4
@@ -295,24 +258,20 @@ public class DSTU7624Test
 
         if (!Arrays.areEqual(output, expectedWrappedText))
         {
-            return new SimpleTestResult(false, Name() + ": Failed KW (wrapping) test 4 - expected "
+            fail("Failed KW (wrapping) test 4 - expected "
                     + Hex.toHexString(expectedWrappedText)
                     + " got " + Hex.toHexString(output));
         }
 
         wrapper.init(false, new KeyParameter(key));
-        try{
-            output = wrapper.unwrap(expectedWrappedText, 0, expectedWrappedText.length);
 
-            if (!Arrays.areEqual(output, textToWrap))
-            {
-                return new SimpleTestResult(false, Name() + ": Failed KW (unwrapping) test 4 - expected "
-                        + Hex.toHexString(textToWrap)
-                        + " got " + Hex.toHexString(output));
-            }
-        }
-        catch (Exception ex){
-            System.out.println(ex.getMessage());
+        output = wrapper.unwrap(expectedWrappedText, 0, expectedWrappedText.length);
+
+        if (!Arrays.areEqual(output, textToWrap))
+        {
+            fail("Failed KW (unwrapping) test 4 - expected "
+                    + Hex.toHexString(textToWrap)
+                    + " got " + Hex.toHexString(output));
         }
 
         //test 5
@@ -329,31 +288,26 @@ public class DSTU7624Test
 
         if (!Arrays.areEqual(output, expectedWrappedText))
         {
-            return new SimpleTestResult(false, Name() + ": Failed KW (wrapping) test 5 - expected "
+            fail("Failed KW (wrapping) test 5 - expected "
                     + Hex.toHexString(expectedWrappedText)
                     + " got " + Hex.toHexString(output));
         }
 
         wrapper.init(false, new KeyParameter(key));
-        try {
-            output = wrapper.unwrap(expectedWrappedText, 0, expectedWrappedText.length);
 
-            if (!Arrays.areEqual(output, textToWrap)) {
-                return new SimpleTestResult(false, Name() + ": Failed KW (unwrapping) test 5 - expected "
-                        + Hex.toHexString(textToWrap)
-                        + " got " + Hex.toHexString(output));
-            }
+        output = wrapper.unwrap(expectedWrappedText, 0, expectedWrappedText.length);
+
+        if (!Arrays.areEqual(output, textToWrap))
+        {
+            fail("Failed KW (unwrapping) test 5 - expected "
+                    + Hex.toHexString(textToWrap)
+                    + " got " + Hex.toHexString(output));
         }
-        catch (Exception ex){
-            System.out.println(ex.getMessage());
-        }
-
-
-        return new SimpleTestResult(true, Name() + ": Okay");
-
-
     }
-    private static SimpleTestResult CCMModeTests(){
+
+    private void CCMModeTests()
+            throws Exception
+    {
         //test 1
         byte[] key = Hex.decode("000102030405060708090a0b0c0d0e0f");
         byte[] iv = Hex.decode("101112131415161718191a1b1c1d1e1f");
@@ -384,24 +338,21 @@ public class DSTU7624Test
 
         len = dstu7624ccm.processBytes(input, 0, input.length, encrypted, 0);
 
-        try {
-            dstu7624ccm.doFinal(encrypted, len);
-        }
-        catch (Exception ex){
-            return new SimpleTestResult(false, Name() + " " + ex.getMessage());
-        }
+
+        dstu7624ccm.doFinal(encrypted, len);
+
         mac = dstu7624ccm.getMac();
 
         if (!Arrays.areEqual(mac, expectedMac))
         {
-            return new SimpleTestResult(false, Name() + ": Failed CCM mac test 1 - expected "
+            fail("Failed CCM mac test 1 - expected "
                     + Hex.toHexString(expectedMac)
                     + " got " + Hex.toHexString(mac));
         }
 
         if (!Arrays.areEqual(encrypted, expectedEncrypted))
         {
-            return new SimpleTestResult(false, Name() + ": Failed CCM encrypt test 1 - expected "
+            fail("Failed CCM encrypt test 1 - expected "
                     + Hex.toHexString(expectedEncrypted)
                     + " got " + Hex.toHexString(encrypted));
         }
@@ -412,15 +363,12 @@ public class DSTU7624Test
         dstu7624ccm.processAADBytes(authText, 0, authText.length);
 
         len = dstu7624ccm.processBytes(expectedEncrypted, 0, expectedEncrypted.length, decrypted, 0);
-        try {
-            dstu7624ccm.doFinal(decrypted, len);
-        }
-        catch (Exception ex){
-            return new SimpleTestResult(false, Name() + " " + ex.getMessage());
-        }
+
+        dstu7624ccm.doFinal(decrypted, len);
+
         if (!Arrays.areEqual(decrypted, expectedDecrypted))
         {
-            return new SimpleTestResult(false, Name() + ": Failed CCM decrypt/verify mac test 1 - expected "
+            fail("Failed CCM decrypt/verify mac test 1 - expected "
                     + Hex.toHexString(expectedDecrypted)
                     + " got " + Hex.toHexString(decrypted));
         }
@@ -450,28 +398,24 @@ public class DSTU7624Test
         dstu7624ccm.setNb(4);
         dstu7624ccm.init(true, param);
 
-        dstu7624ccm.processAADBytes(authText, 0, input.length);
+        dstu7624ccm.processAADBytes(authText, 0, authText.length);
 
         len = dstu7624ccm.processBytes(input, 0, input.length, encrypted, 0);
 
-        try {
-            dstu7624ccm.doFinal(encrypted, len);
-        }
-        catch (Exception ex){
-            return new SimpleTestResult(false, Name() + " " + ex.getMessage());
-        }
+        dstu7624ccm.doFinal(encrypted, len);
+
         mac = dstu7624ccm.getMac();
 
         if (!Arrays.areEqual(mac, expectedMac))
         {
-            return new SimpleTestResult(false, Name() + ": Failed CCM mac test 2 - expected "
+            fail("Failed CCM mac test 2 - expected "
                     + Hex.toHexString(expectedMac)
                     + " got " + Hex.toHexString(mac));
         }
 
         if (!Arrays.areEqual(encrypted, expectedEncrypted))
         {
-            return new SimpleTestResult(false, Name() + ": Failed CCM encrypt test 2 - expected "
+            fail("Failed CCM encrypt test 2 - expected "
                     + Hex.toHexString(expectedEncrypted)
                     + " got " + Hex.toHexString(encrypted));
         }
@@ -479,21 +423,15 @@ public class DSTU7624Test
         dstu7624ccm.setNb(4);
         dstu7624ccm.init(false, param);
 
-        dstu7624ccm.processAADBytes(authText, 0, input.length);
+        dstu7624ccm.processAADBytes(authText, 0, authText.length);
 
         len = dstu7624ccm.processBytes(expectedEncrypted, 0, expectedEncrypted.length, decrypted, 0);
 
-        try {
-            dstu7624ccm.doFinal(decrypted, len);
-        }
-        catch (Exception ex){
-            return new SimpleTestResult(false, Name() + " " + ex.getMessage());
-        }
-
+        dstu7624ccm.doFinal(decrypted, len);
 
         if (!Arrays.areEqual(decrypted, expectedDecrypted))
         {
-            return new SimpleTestResult(false, Name() + ": Failed CCM decrypt/verify mac test 2 - expected "
+            fail("Failed CCM decrypt/verify mac test 2 - expected "
                     + Hex.toHexString(expectedDecrypted)
                     + " got " + Hex.toHexString(decrypted));
         }
@@ -523,28 +461,24 @@ public class DSTU7624Test
         dstu7624ccm.setNb(6);
         dstu7624ccm.init(true, param);
 
-        dstu7624ccm.processAADBytes(authText, 0, input.length);
+        dstu7624ccm.processAADBytes(authText, 0, authText.length);
 
         len = dstu7624ccm.processBytes(input, 0, input.length, encrypted, 0);
 
-        try {
-            dstu7624ccm.doFinal(encrypted, len);
-        }
-        catch (Exception ex){
-            return new SimpleTestResult(false, Name() + " " + ex.getMessage());
-        }
+        dstu7624ccm.doFinal(encrypted, len);
+
         mac = dstu7624ccm.getMac();
 
         if (!Arrays.areEqual(mac, expectedMac))
         {
-            return new SimpleTestResult(false, Name() + ": Failed CCM mac test 3 - expected "
+            fail("Failed CCM mac test 3 - expected "
                     + Hex.toHexString(expectedMac)
                     + " got " + Hex.toHexString(mac));
         }
 
         if (!Arrays.areEqual(encrypted, expectedEncrypted))
         {
-            return new SimpleTestResult(false, Name() + ": Failed CCM encrypt test 3 - expected "
+            fail("Failed CCM encrypt test 3 - expected "
                     + Hex.toHexString(expectedEncrypted)
                     + " got " + Hex.toHexString(encrypted));
         }
@@ -552,19 +486,15 @@ public class DSTU7624Test
         dstu7624ccm.setNb(6);
         dstu7624ccm.init(false, param);
 
-        dstu7624ccm.processAADBytes(authText, 0, input.length);
+        dstu7624ccm.processAADBytes(authText, 0, authText.length);
 
         len = dstu7624ccm.processBytes(expectedEncrypted, 0, expectedEncrypted.length, decrypted, 0);
 
-        try {
-            dstu7624ccm.doFinal(decrypted, len);
-        }
-        catch (Exception ex){
-            return new SimpleTestResult(false, Name() + " " + ex.getMessage());
-        }
+        dstu7624ccm.doFinal(decrypted, len);
+
         if (!Arrays.areEqual(decrypted, expectedDecrypted))
         {
-            return new SimpleTestResult(false, Name() + ": Failed CCM decrypt/verify mac test 3 - expected "
+            fail("Failed CCM decrypt/verify mac test 3 - expected "
                     + Hex.toHexString(expectedDecrypted)
                     + " got " + Hex.toHexString(decrypted));
         }
@@ -594,30 +524,24 @@ public class DSTU7624Test
         dstu7624ccm.setNb(8);
         dstu7624ccm.init(true, param);
 
-        dstu7624ccm.processAADBytes(authText, 0, input.length);
+        dstu7624ccm.processAADBytes(authText, 0, authText.length);
 
         len = dstu7624ccm.processBytes(input, 0, input.length, encrypted, 0);
 
-        try{
-            dstu7624ccm.doFinal(encrypted, len);
-        }
-        catch (Exception ex){
-            return new SimpleTestResult(false, Name() + " " + ex.getMessage());
-        }
-
+        dstu7624ccm.doFinal(encrypted, len);
 
         mac = dstu7624ccm.getMac();
 
         if (!Arrays.areEqual(mac, expectedMac))
         {
-            return new SimpleTestResult(false, Name() + ": Failed CCM mac test 4 - expected "
+            fail("Failed CCM mac test 4 - expected "
                     + Hex.toHexString(expectedMac)
                     + " got " + Hex.toHexString(mac));
         }
 
         if (!Arrays.areEqual(encrypted, expectedEncrypted))
         {
-            return new SimpleTestResult(false, Name() + ": Failed CCM encrypt test 4 - expected "
+            fail("Failed CCM encrypt test 4 - expected "
                     + Hex.toHexString(expectedEncrypted)
                     + " got " + Hex.toHexString(encrypted));
         }
@@ -625,26 +549,23 @@ public class DSTU7624Test
         dstu7624ccm.setNb(8);
         dstu7624ccm.init(false, param);
 
-        dstu7624ccm.processAADBytes(authText, 0, input.length);
+        dstu7624ccm.processAADBytes(authText, 0, authText.length);
 
         len = dstu7624ccm.processBytes(expectedEncrypted, 0, expectedEncrypted.length, decrypted, 0);
 
-        try {
-            dstu7624ccm.doFinal(decrypted, len);
-        }
-        catch (Exception ex){
-            return new SimpleTestResult(false, Name() + " " + ex.getMessage());
-        }
+        dstu7624ccm.doFinal(decrypted, len);
+
         if (!Arrays.areEqual(decrypted, expectedDecrypted))
         {
-            return new SimpleTestResult(false, Name() + ": Failed CCM decrypt/verify mac test 4 - expected "
+            fail("Failed CCM decrypt/verify mac test 4 - expected "
                     + Hex.toHexString(expectedDecrypted)
                     + " got " + Hex.toHexString(decrypted));
         }
-
-        return new SimpleTestResult(true, Name() + ": Okay");
     }
-    private static SimpleTestResult XTSModeTests(){
+
+    private void XTSModeTests()
+            throws Exception
+    {
 
         //test 1
         byte[] key = Hex.decode("000102030405060708090A0B0C0D0E0F");
@@ -664,19 +585,15 @@ public class DSTU7624Test
 
         dstu7624xts.init(true, param);
         len = dstu7624xts.processBytes(plainText, 0, plainText.length, output, 0);
-        try {
-            dstu7624xts.doFinal(output, len);
-        }
-        catch (Exception ex){
-            return new SimpleTestResult(false, Name() + " " + ex.getMessage());
-        }
+
+        dstu7624xts.doFinal(output, len);
+
         if (!Arrays.areEqual(output, expectedCipherText))
         {
-            return new SimpleTestResult(false, Name() + ": Failed XTS encrypt test 1 - expected "
+            fail("Failed XTS encrypt test 1 - expected "
                     + Hex.toHexString(expectedCipherText)
                     + " got " + Hex.toHexString(output));
         }
-
 
 
         dstu7624xts.init(false, param);
@@ -685,7 +602,7 @@ public class DSTU7624Test
 
         if (!Arrays.areEqual(decrypted, plainText))
         {
-            return new SimpleTestResult(false, Name() + ": Failed XTS decrypt test 1 - expected "
+            fail("Failed XTS decrypt test 1 - expected "
                     + Hex.toHexString(plainText)
                     + " got " + Hex.toHexString(decrypted));
         }
@@ -710,11 +627,10 @@ public class DSTU7624Test
 
         if (!Arrays.areEqual(output, expectedCipherText))
         {
-            return new SimpleTestResult(false, Name() + ": Failed XTS encrypt test 2 - expected "
+            fail("Failed XTS encrypt test 2 - expected "
                     + Hex.toHexString(expectedCipherText)
                     + " got " + Hex.toHexString(output));
         }
-
 
 
         dstu7624xts.init(false, param);
@@ -723,7 +639,7 @@ public class DSTU7624Test
 
         if (!Arrays.areEqual(decrypted, plainText))
         {
-            return new SimpleTestResult(false, Name() + ": Failed XTS decrypt test 2 - expected "
+            fail("Failed XTS decrypt test 2 - expected "
                     + Hex.toHexString(plainText)
                     + " got " + Hex.toHexString(decrypted));
         }
@@ -748,7 +664,7 @@ public class DSTU7624Test
 
         if (!Arrays.areEqual(output, expectedCipherText))
         {
-            return new SimpleTestResult(false, Name() + ": Failed XTS encrypt test 3 - expected "
+            fail("Failed XTS encrypt test 3 - expected "
                     + Hex.toHexString(expectedCipherText)
                     + " got " + Hex.toHexString(output));
         }
@@ -759,7 +675,7 @@ public class DSTU7624Test
 
         if (!Arrays.areEqual(decrypted, plainText))
         {
-            return new SimpleTestResult(false, Name() + ": Failed XTS decrypt test 3 - expected "
+            fail("Failed XTS decrypt test 3 - expected "
                     + Hex.toHexString(plainText)
                     + " got " + Hex.toHexString(decrypted));
         }
@@ -783,11 +699,10 @@ public class DSTU7624Test
 
         if (!Arrays.areEqual(output, expectedCipherText))
         {
-            return new SimpleTestResult(false, Name() + ": Failed XTS encrypt test 4 - expected "
+            fail("Failed XTS encrypt test 4 - expected "
                     + Hex.toHexString(expectedCipherText)
                     + " got " + Hex.toHexString(output));
         }
-
 
 
         dstu7624xts.init(false, param);
@@ -796,7 +711,7 @@ public class DSTU7624Test
 
         if (!Arrays.areEqual(decrypted, plainText))
         {
-            return new SimpleTestResult(false, Name() + ": Failed XTS decrypt test 4 - expected "
+            fail("Failed XTS decrypt test 4 - expected "
                     + Hex.toHexString(plainText)
                     + " got " + Hex.toHexString(decrypted));
         }
@@ -820,11 +735,10 @@ public class DSTU7624Test
 
         if (!Arrays.areEqual(output, expectedCipherText))
         {
-            return new SimpleTestResult(false, Name() + ": Failed XTS encrypt test 5 - expected "
+            fail("Failed XTS encrypt test 5 - expected "
                     + Hex.toHexString(expectedCipherText)
                     + " got " + Hex.toHexString(output));
         }
-
 
 
         dstu7624xts.init(false, param);
@@ -833,14 +747,15 @@ public class DSTU7624Test
 
         if (!Arrays.areEqual(decrypted, plainText))
         {
-            return new SimpleTestResult(false, Name() + ": Failed XTS decrypt test 5 - expected "
+            fail("Failed XTS decrypt test 5 - expected "
                     + Hex.toHexString(plainText)
                     + " got " + Hex.toHexString(decrypted));
         }
-
-        return new SimpleTestResult(true, Name() + ": Okay");
     }
-    private static SimpleTestResult GCMModeTests(){
+
+    private void GCMModeTests()
+            throws Exception
+    {
         //test 1
         byte[] key = Hex.decode("000102030405060708090A0B0C0D0E0F");
 
@@ -876,25 +791,22 @@ public class DSTU7624Test
 
         dstu7624gcm.init(true, parameters);
         dstu7624gcm.processAADBytes(authText, 0, authText.length);
-        try {
-            len = dstu7624gcm.processBytes(plainText, 0, plainText.length, encrypted, 0);
-            dstu7624gcm.doFinal(encrypted, len);
-        }
-        catch (Exception ex){
-            return new SimpleTestResult(false, Name() + " " + ex.getMessage());
-        }
+
+        len = dstu7624gcm.processBytes(plainText, 0, plainText.length, encrypted, 0);
+        dstu7624gcm.doFinal(encrypted, len);
+
         mac = dstu7624gcm.getMac();
 
         if (!Arrays.areEqual(mac, expectedMac))
         {
-            return new SimpleTestResult(false, Name() + ": Failed GCM/GMAC test 1 - expected mac: "
+            fail("Failed GCM/GMAC test 1 - expected mac: "
                     + Hex.toHexString(expectedMac)
                     + " got mac: " + Hex.toHexString(mac));
         }
 
         if (!Arrays.areEqual(encrypted, expectedOutput))
         {
-            return new SimpleTestResult(false, Name() + ": Failed GCM/GMAC test 1 - expected encrypted: "
+            fail("Failed GCM/GMAC test 1 - expected encrypted: "
                     + Hex.toHexString(expectedOutput)
                     + " got encrypted: " + Hex.toHexString(encrypted));
         }
@@ -902,18 +814,15 @@ public class DSTU7624Test
 
         dstu7624gcm.init(false, parameters);
         dstu7624gcm.processAADBytes(authText, 0, authText.length);
-        try {
-            len = dstu7624gcm.processBytes(expectedOutput, 0, expectedOutput.length - expectedMac.length, decrypted, 0);
-            dstu7624gcm.doFinal(decrypted, len);
-        }
-        catch (Exception ex){
-            return new SimpleTestResult(false, Name() + " " + ex.getMessage());
-        }
+
+        len = dstu7624gcm.processBytes(expectedOutput, 0, expectedOutput.length, decrypted, 0);
+        dstu7624gcm.doFinal(decrypted, len);
+
 
         mac = dstu7624gcm.getMac();
         if (!Arrays.areEqual(mac, expectedMac))
         {
-            return new SimpleTestResult(false, Name() + ": Failed GCM/GMAC test 1 - expected mac: "
+            fail("Failed GCM/GMAC test 1 - expected mac: "
                     + Hex.toHexString(expectedMac)
                     + " got mac: " + Hex.toHexString(mac));
         }
@@ -926,7 +835,7 @@ public class DSTU7624Test
 
         if (!Arrays.areEqual(decrypted, plainText))
         {
-            return new SimpleTestResult(false, Name() + ": Failed GCM/GMAC test 1 - expected decrypted: "
+            fail("Failed GCM/GMAC test 1 - expected decrypted: "
                     + Hex.toHexString(plainText)
                     + " got decrypted: " + Hex.toHexString(decrypted));
         }
@@ -964,25 +873,21 @@ public class DSTU7624Test
         dstu7624gcm.init(true, parameters);
         dstu7624gcm.processAADBytes(authText, 0, authText.length);
         len = dstu7624gcm.processBytes(plainText, 0, plainText.length, encrypted, 0);
-        try {
-            dstu7624gcm.doFinal(encrypted, len);
-        }
-        catch (Exception ex){
-            return new SimpleTestResult(false, Name() + " " + ex.getMessage());
-        }
+
+        dstu7624gcm.doFinal(encrypted, len);
 
         mac = dstu7624gcm.getMac();
 
         if (!Arrays.areEqual(mac, expectedMac))
         {
-            return new SimpleTestResult(false, Name() + ": Failed GCM/GMAC test 2 - expected mac: "
+            fail("Failed GCM/GMAC test 2 - expected mac: "
                     + Hex.toHexString(expectedMac)
                     + " got mac: " + Hex.toHexString(mac));
         }
 
         if (!Arrays.areEqual(encrypted, expectedOutput))
         {
-            return new SimpleTestResult(false, Name() + ": Failed GCM/GMAC test 2 - expected encrypted: "
+            fail("Failed GCM/GMAC test 2 - expected encrypted: "
                     + Hex.toHexString(expectedOutput)
                     + " got encrypted: " + Hex.toHexString(encrypted));
         }
@@ -990,19 +895,15 @@ public class DSTU7624Test
 
         dstu7624gcm.init(false, parameters);
         dstu7624gcm.processAADBytes(authText, 0, authText.length);
-        len = dstu7624gcm.processBytes(expectedOutput, 0, expectedOutput.length - expectedMac.length, decrypted, 0);
-        try {
-            dstu7624gcm.doFinal(decrypted, len);
-        }
-        catch (Exception ex){
-            return new SimpleTestResult(false, Name() + " " + ex.getMessage());
-        }
+        len = dstu7624gcm.processBytes(expectedOutput, 0, expectedOutput.length, decrypted, 0);
+
+        dstu7624gcm.doFinal(decrypted, len);
 
         mac = dstu7624gcm.getMac();
 
         if (!Arrays.areEqual(mac, expectedMac))
         {
-            return new SimpleTestResult(false, Name() + ": Failed GCM/GMAC test 2 - expected mac: "
+            fail("Failed GCM/GMAC test 2 - expected mac: "
                     + Hex.toHexString(expectedMac)
                     + " got mac: " + Hex.toHexString(mac));
         }
@@ -1014,7 +915,7 @@ public class DSTU7624Test
 
         if (!Arrays.areEqual(decrypted, plainText))
         {
-            return new SimpleTestResult(false, Name() + ": Failed GCM/GMAC test 2 - expected decrypted: "
+            fail("Failed GCM/GMAC test 2 - expected decrypted: "
                     + Hex.toHexString(plainText)
                     + " got decrypted: " + Hex.toHexString(decrypted));
         }
@@ -1046,7 +947,6 @@ public class DSTU7624Test
         System.arraycopy(expectedMac, 0, decrypted, plainText.length, mac.length);
 
 
-
         parameters = new AEADParameters(new KeyParameter(key), 128, iv);
 
         dstu7624gcm = new KGCMBlockCipher(new DSTU7624Engine(256, 256));
@@ -1054,42 +954,36 @@ public class DSTU7624Test
         dstu7624gcm.init(true, parameters);
         dstu7624gcm.processAADBytes(authText, 0, authText.length);
         len = dstu7624gcm.processBytes(plainText, 0, plainText.length, encrypted, 0);
-        try {
-            dstu7624gcm.doFinal(encrypted, len);
-        } catch (Exception ex) {
-            return new SimpleTestResult(false, Name() + " " + ex.getMessage());
-        }
+
+        dstu7624gcm.doFinal(encrypted, len);
 
         mac = dstu7624gcm.getMac();
 
         if (!Arrays.areEqual(mac, expectedMac))
         {
-            return new SimpleTestResult(false, Name() + ": Failed GCM/GMAC test 3 - expected mac: "
+            fail("Failed GCM/GMAC test 3 - expected mac: "
                     + Hex.toHexString(expectedMac)
                     + " got mac: " + Hex.toHexString(mac));
         }
 
         if (!Arrays.areEqual(encrypted, expectedOutput))
         {
-            return new SimpleTestResult(false, Name() + ": Failed GCM/GMAC test 3 - expected encrypted: "
+            fail("Failed GCM/GMAC test 3 - expected encrypted: "
                     + Hex.toHexString(expectedOutput)
                     + " got encrypted: " + Hex.toHexString(encrypted));
         }
 
         dstu7624gcm.init(false, parameters);
         dstu7624gcm.processAADBytes(authText, 0, authText.length);
-        len = dstu7624gcm.processBytes(expectedOutput, 0, expectedOutput.length - expectedMac.length, decrypted, 0);
-        try {
-            dstu7624gcm.doFinal(decrypted, len);
-        } catch (Exception ex) {
-            return new SimpleTestResult(false, Name() + " " + ex.getMessage());
-        }
+        len = dstu7624gcm.processBytes(expectedOutput, 0, expectedOutput.length, decrypted, 0);
+
+        dstu7624gcm.doFinal(decrypted, len);
 
         mac = dstu7624gcm.getMac();
 
         if (!Arrays.areEqual(mac, expectedMac))
         {
-            return new SimpleTestResult(false, Name() + ": Failed GCM/GMAC test 3 - expected mac: "
+            fail("Failed GCM/GMAC test 3 - expected mac: "
                     + Hex.toHexString(expectedMac)
                     + " got mac: " + Hex.toHexString(mac));
         }
@@ -1101,7 +995,7 @@ public class DSTU7624Test
 
         if (!Arrays.areEqual(decrypted, plainText))
         {
-            return new SimpleTestResult(false, Name() + ": Failed GCM/GMAC test 3 - expected decrypted: "
+            fail("Failed GCM/GMAC test 3 - expected decrypted: "
                     + Hex.toHexString(plainText)
                     + " got decrypted: " + Hex.toHexString(decrypted));
         }
@@ -1139,24 +1033,21 @@ public class DSTU7624Test
         dstu7624gcm.init(true, parameters);
         dstu7624gcm.processAADBytes(authText, 0, authText.length);
         len = dstu7624gcm.processBytes(plainText, 0, plainText.length, encrypted, 0);
-        try {
-            dstu7624gcm.doFinal(encrypted, len);
-        }
-        catch (Exception ex){
-            return new SimpleTestResult(false, Name() + " " + ex.getMessage());
-        }
+
+        dstu7624gcm.doFinal(encrypted, len);
+
         mac = dstu7624gcm.getMac();
 
         if (!Arrays.areEqual(mac, expectedMac))
         {
-            return new SimpleTestResult(false, Name() + ": Failed GCM/GMAC test 4 - expected mac: "
+            fail("Failed GCM/GMAC test 4 - expected mac: "
                     + Hex.toHexString(expectedMac)
                     + " got mac: " + Hex.toHexString(mac));
         }
 
         if (!Arrays.areEqual(encrypted, expectedOutput))
         {
-            return new SimpleTestResult(false, Name() + ": Failed GCM/GMAC test 4 - expected encrypted: "
+            fail("Failed GCM/GMAC test 4 - expected encrypted: "
                     + Hex.toHexString(expectedOutput)
                     + " got encrypted: " + Hex.toHexString(encrypted));
         }
@@ -1164,18 +1055,15 @@ public class DSTU7624Test
 
         dstu7624gcm.init(false, parameters);
         dstu7624gcm.processAADBytes(authText, 0, authText.length);
-        len = dstu7624gcm.processBytes(expectedOutput, 0, expectedOutput.length - expectedMac.length, decrypted, 0);
-        try {
-            dstu7624gcm.doFinal(decrypted, len);
-        }
-        catch (Exception ex){
-            return new SimpleTestResult(false, Name() + " " + ex.getMessage());
-        }
+        len = dstu7624gcm.processBytes(expectedOutput, 0, expectedOutput.length, decrypted, 0);
+
+        dstu7624gcm.doFinal(decrypted, len);
+
         mac = dstu7624gcm.getMac();
 
         if (!Arrays.areEqual(mac, expectedMac))
         {
-            return new SimpleTestResult(false, Name() + ": Failed GCM/GMAC test 4 - expected mac: "
+            fail("Failed GCM/GMAC test 4 - expected mac: "
                     + Hex.toHexString(expectedMac)
                     + " got mac: " + Hex.toHexString(mac));
         }
@@ -1187,7 +1075,7 @@ public class DSTU7624Test
 
         if (!Arrays.areEqual(decrypted, plainText))
         {
-            return new SimpleTestResult(false, Name() + ": Failed GCM/GMAC test 4 - expected decrypted: "
+            fail("Failed GCM/GMAC test 4 - expected decrypted: "
                     + Hex.toHexString(plainText)
                     + " got decrypted: " + Hex.toHexString(decrypted));
         }
@@ -1219,31 +1107,27 @@ public class DSTU7624Test
         System.arraycopy(expectedMac, 0, decrypted, plainText.length, mac.length);
 
 
-
         parameters = new AEADParameters(new KeyParameter(key), 256, iv);
 
         dstu7624gcm = new KGCMBlockCipher(new DSTU7624Engine(256, 512));
         dstu7624gcm.init(true, parameters);
         dstu7624gcm.processAADBytes(authText, 0, authText.length);
         len = dstu7624gcm.processBytes(plainText, 0, plainText.length, encrypted, 0);
-        try {
-            dstu7624gcm.doFinal(encrypted, len);
-        }
-        catch (Exception ex){
-            return new SimpleTestResult(false, Name() + " " + ex.getMessage());
-        }
+
+        dstu7624gcm.doFinal(encrypted, len);
+
         mac = dstu7624gcm.getMac();
 
         if (!Arrays.areEqual(mac, expectedMac))
         {
-            return new SimpleTestResult(false, Name() + ": Failed GCM/GMAC test 5 - expected mac: "
+            fail("Failed GCM/GMAC test 5 - expected mac: "
                     + Hex.toHexString(expectedMac)
                     + " got mac: " + Hex.toHexString(mac));
         }
 
         if (!Arrays.areEqual(encrypted, expectedOutput))
         {
-            return new SimpleTestResult(false, Name() + ": Failed GCM/GMAC test 5 - expected encrypted: "
+            fail("Failed GCM/GMAC test 5 - expected encrypted: "
                     + Hex.toHexString(expectedOutput)
                     + " got encrypted: " + Hex.toHexString(encrypted));
         }
@@ -1251,17 +1135,15 @@ public class DSTU7624Test
 
         dstu7624gcm.init(false, parameters);
         dstu7624gcm.processAADBytes(authText, 0, authText.length);
-        len = dstu7624gcm.processBytes(expectedOutput, 0, expectedOutput.length - expectedMac.length, decrypted, 0);
-        try {
-            dstu7624gcm.doFinal(decrypted, len);
-        }catch (Exception ex){
-            return new SimpleTestResult(false, Name() + " " + ex.getMessage());
-        }
+        len = dstu7624gcm.processBytes(expectedOutput, 0, expectedOutput.length, decrypted, 0);
+
+        dstu7624gcm.doFinal(decrypted, len);
+
         mac = dstu7624gcm.getMac();
 
         if (!Arrays.areEqual(mac, expectedMac))
         {
-            return new SimpleTestResult(false, Name() + ": Failed GCM/GMAC test 5 - expected mac: "
+            fail("Failed GCM/GMAC test 5 - expected mac: "
                     + Hex.toHexString(expectedMac)
                     + " got mac: " + Hex.toHexString(mac));
         }
@@ -1273,7 +1155,7 @@ public class DSTU7624Test
 
         if (!Arrays.areEqual(decrypted, plainText))
         {
-            return new SimpleTestResult(false, Name() + ": Failed GCM/GMAC test 5 - expected decrypted: "
+            fail("Failed GCM/GMAC test 5 - expected decrypted: "
                     + Hex.toHexString(plainText)
                     + " got decrypted: " + Hex.toHexString(decrypted));
         }
@@ -1311,41 +1193,36 @@ public class DSTU7624Test
         dstu7624gcm.init(true, parameters);
         dstu7624gcm.processAADBytes(authText, 0, authText.length);
         len = dstu7624gcm.processBytes(plainText, 0, plainText.length, encrypted, 0);
-        try {
-            dstu7624gcm.doFinal(encrypted, len);
-        }catch (Exception ex){
-            return new SimpleTestResult(false, Name() + " " + ex.getMessage());
-        }
+
+        dstu7624gcm.doFinal(encrypted, len);
+
         mac = dstu7624gcm.getMac();
 
         if (!Arrays.areEqual(mac, expectedMac))
         {
-            return new SimpleTestResult(false, Name() + ": Failed GCM/GMAC test 6 - expected mac: "
+            fail("Failed GCM/GMAC test 6 - expected mac: "
                     + Hex.toHexString(expectedMac)
                     + " got mac: " + Hex.toHexString(mac));
         }
 
         if (!Arrays.areEqual(encrypted, expectedOutput))
         {
-            return new SimpleTestResult(false, Name() + ": Failed GCM/GMAC test 6 - expected encrypted: "
+            fail("Failed GCM/GMAC test 6 - expected encrypted: "
                     + Hex.toHexString(expectedOutput)
                     + " got encrypted: " + Hex.toHexString(encrypted));
         }
 
         dstu7624gcm.init(false, parameters);
         dstu7624gcm.processAADBytes(authText, 0, authText.length);
-        len = dstu7624gcm.processBytes(expectedOutput, 0, expectedOutput.length - expectedMac.length, decrypted, 0);
-        try {
-            dstu7624gcm.doFinal(decrypted, len);
-        }
-        catch (Exception ex){
-            return new SimpleTestResult(false, Name() + " " + ex.getMessage());
-        }
+        len = dstu7624gcm.processBytes(expectedOutput, 0, expectedOutput.length, decrypted, 0);
+
+        dstu7624gcm.doFinal(decrypted, len);
+
         mac = dstu7624gcm.getMac();
 
         if (!Arrays.areEqual(mac, expectedMac))
         {
-            return new SimpleTestResult(false, Name() + ": Failed GCM/GMAC test 6 - expected mac: "
+            fail("Failed GCM/GMAC test 6 - expected mac: "
                     + Hex.toHexString(expectedMac)
                     + " got mac: " + Hex.toHexString(mac));
         }
@@ -1357,7 +1234,7 @@ public class DSTU7624Test
 
         if (!Arrays.areEqual(decrypted, plainText))
         {
-            return new SimpleTestResult(false, Name() + ": Failed GCM/GMAC test 6 - expected decrypted: "
+            fail("Failed GCM/GMAC test 6 - expected decrypted: "
                     + Hex.toHexString(plainText)
                     + " got decrypted: " + Hex.toHexString(decrypted));
         }
@@ -1377,11 +1254,12 @@ public class DSTU7624Test
         dstu7624gcm = new KGCMBlockCipher(new DSTU7624Engine(128, 256));
 
         dstu7624gcm.init(true, parameters);
-        dstu7624gcm.processAADBytes(authText, 0, authText.length, mac, 0);
+        dstu7624gcm.processAADBytes(authText, 0, authText.length);
+        dstu7624gcm.doFinal(mac, 0);
 
         if (!Arrays.areEqual(mac, expectedMac))
         {
-            return new SimpleTestResult(false, Name() + ": Failed GCM/GMAC test 7 - expected mac: "
+            fail("Failed GCM/GMAC test 7 - expected mac: "
                     + Hex.toHexString(expectedMac)
                     + " got mac: " + Hex.toHexString(mac));
         }
@@ -1400,12 +1278,12 @@ public class DSTU7624Test
         dstu7624gcm = new KGCMBlockCipher(new DSTU7624Engine(256, 256));
 
         dstu7624gcm.init(true, parameters);
-        dstu7624gcm.processAADBytes(authText, 0, authText.length, mac, 0);
-
+        dstu7624gcm.processAADBytes(authText, 0, authText.length);
+        dstu7624gcm.doFinal(mac, 0);
 
         if (!Arrays.areEqual(mac, expectedMac))
         {
-            return new SimpleTestResult(false, Name() + ": Failed GCM/GMAC test 8 - expected mac: "
+            fail("Failed GCM/GMAC test 8 - expected mac: "
                     + Hex.toHexString(expectedMac)
                     + " got mac: " + Hex.toHexString(mac));
         }
@@ -1424,12 +1302,12 @@ public class DSTU7624Test
         dstu7624gcm = new KGCMBlockCipher(new DSTU7624Engine(256, 256));
 
         dstu7624gcm.init(true, parameters);
-        dstu7624gcm.processAADBytes(authText, 0, authText.length, mac, 0);
-
+        dstu7624gcm.processAADBytes(authText, 0, authText.length);
+        dstu7624gcm.doFinal(mac, 0);
 
         if (!Arrays.areEqual(mac, expectedMac))
         {
-            return new SimpleTestResult(false, Name() + ": Failed GCM/GMAC test 9 - expected mac: "
+            fail("Failed GCM/GMAC test 9 - expected mac: "
                     + Hex.toHexString(expectedMac)
                     + " got mac: " + Hex.toHexString(mac));
         }
@@ -1448,12 +1326,12 @@ public class DSTU7624Test
         dstu7624gcm = new KGCMBlockCipher(new DSTU7624Engine(256, 512));
 
         dstu7624gcm.init(true, parameters);
-        dstu7624gcm.processAADBytes(authText, 0, authText.length, mac, 0);
-
+        dstu7624gcm.processAADBytes(authText, 0, authText.length);
+        dstu7624gcm.doFinal(mac, 0);
 
         if (!Arrays.areEqual(mac, expectedMac))
         {
-            return new SimpleTestResult(false, Name() + ": Failed GCM/GMAC test 10 - expected mac: "
+            fail("Failed GCM/GMAC test 10 - expected mac: "
                     + Hex.toHexString(expectedMac)
                     + " got mac: " + Hex.toHexString(mac));
         }
@@ -1472,19 +1350,14 @@ public class DSTU7624Test
         dstu7624gcm = new KGCMBlockCipher(new DSTU7624Engine(512, 512));
 
         dstu7624gcm.init(true, parameters);
-        dstu7624gcm.processAADBytes(authText, 0, authText.length, mac, 0);
-
+        dstu7624gcm.processAADBytes(authText, 0, authText.length);
+        dstu7624gcm.doFinal(mac, 0);
 
         if (!Arrays.areEqual(mac, expectedMac))
         {
-            return new SimpleTestResult(false, Name() + ": Failed GCM/GMAC test 11 - expected mac: "
+            fail("Failed GCM/GMAC test 11 - expected mac: "
                     + Hex.toHexString(expectedMac)
                     + " got mac: " + Hex.toHexString(mac));
         }
-
-        return new SimpleTestResult(true, Name() + ": Okay");
     }
-
-
-    private static String Name(){return "DSTU7624";}
 }

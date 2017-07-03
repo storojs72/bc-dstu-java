@@ -43,7 +43,7 @@ public class DSTU7564Mac
 
             invertedKey = new byte[key.length];
 
-            paddedKey = padKey(key, 0, key.length);
+            paddedKey = padKey(key);
 
             for (int byteIndex = 0; byteIndex < invertedKey.length; byteIndex++)
             {
@@ -54,6 +54,9 @@ public class DSTU7564Mac
         {
             throw new IllegalArgumentException("Bad parameter passed");
         }
+
+//        System.out.print(Hex.toHexString(paddedKey));
+//        System.out.println(paddedKey.length);
 
         engine.update(paddedKey, 0, paddedKey.length);
     }
@@ -88,6 +91,9 @@ public class DSTU7564Mac
             throw new IllegalStateException(getAlgorithmName() + " not initialised");
         }
 
+//        System.out.print(Hex.toHexString(in));
+//        System.out.println(in.length);
+
         engine.update(in, inOff, len);
         inputLength += len;
     }
@@ -106,6 +112,8 @@ public class DSTU7564Mac
 
         pad();
 
+//        System.out.print(Hex.toHexString(invertedKey));
+//        System.out.println(invertedKey.length);
         engine.update(invertedKey, 0, invertedKey.length);
 
         inputLength = 0;
@@ -117,6 +125,10 @@ public class DSTU7564Mac
     {
         inputLength = 0;
         engine.reset();
+        if (paddedKey != null)
+        {
+            engine.update(paddedKey, 0, paddedKey.length);
+        }
     }
 
     private void pad()
@@ -124,7 +136,7 @@ public class DSTU7564Mac
         int extra = engine.getByteLength() - (int)(inputLength % engine.getByteLength());
         if (extra < 13)  // terminator byte + 96 bits of length
         {
-            extra = engine.getByteLength();
+            extra += engine.getByteLength();
         }
 
         byte[] padded = new byte[extra];
@@ -134,26 +146,27 @@ public class DSTU7564Mac
         // Defined in standard;
         Pack.longToLittleEndian(inputLength * BITS_IN_BYTE, padded, padded.length - 12);
 
+//        System.out.print(Hex.toHexString(padded));
+//        System.out.println(padded.length);
         engine.update(padded, 0, padded.length);
     }
 
-    private byte[] padKey(byte[] in, int inOff, int len)
+    private byte[] padKey(byte[] in)
     {
-        byte[] padded;
-        if (len % engine.getByteLength() == 0)
+        int paddedLen = ((in.length + engine.getByteLength() - 1) / engine.getByteLength()) * engine.getByteLength();
+
+        int extra = engine.getByteLength() - (int)(in.length % engine.getByteLength());
+        if (extra < 13)  // terminator byte + 96 bits of length
         {
-            padded = new byte[len + engine.getByteLength()];
-        }
-        else
-        {
-            int blocks = len / engine.getByteLength();
-            padded = new byte[(blocks * engine.getByteLength()) + engine.getByteLength()];
+            paddedLen += engine.getByteLength();
         }
 
-        System.arraycopy(in, inOff, padded, 0, len);
+        byte[] padded = new byte[paddedLen];
 
-        padded[len] = (byte)0x80; // Defined in standard;
-        Pack.intToLittleEndian(len * BITS_IN_BYTE, padded, padded.length - 12); // Defined in standard;
+        System.arraycopy(in, 0, padded, 0, in.length);
+
+        padded[in.length] = (byte)0x80; // Defined in standard;
+        Pack.intToLittleEndian(in.length * BITS_IN_BYTE, padded, padded.length - 12); // Defined in standard;
 
         return padded;
     }

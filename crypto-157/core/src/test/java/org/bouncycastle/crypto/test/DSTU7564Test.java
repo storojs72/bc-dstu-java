@@ -6,64 +6,303 @@ import org.bouncycastle.crypto.macs.DSTU7564Mac;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.util.Arrays;
 import org.bouncycastle.util.encoders.Hex;
-import org.bouncycastle.util.test.SimpleTestResult;
-import org.bouncycastle.util.test.TestResult;
 
-public class DSTU7564Test extends DigestTest {
+public class DSTU7564Test
+        extends DigestTest
+{
 
-    protected Digest cloneDigest(Digest digest) {
-        return null;
+    private static String[] messages =
+            {
+                    "",
+                    "a",
+                    "abc",
+                    "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu"
+            };
+
+    private static String[] digests =
+            {
+                    "cd5101d1ccdf0d1d1f4ada56e888cd724ca1a0838a3521e7131d4fb78d0f5eb6",
+                    "c51a1d639596fb613d86557314a150c40f8fff3de48bc93a3b03c161f4105ee4",
+                    "0bd1b36109f1318411a0517315aa46b8839df06622a278676f5487996c9cfc04",
+                    "02621dbb53f2c7001be64d7308ecb80d21ba7797c92e98d1efc240d41e4c414b"
+            };
+
+    protected Digest cloneDigest(Digest digest)
+    {
+        return new DSTU7564Digest((DSTU7564Digest)digest);
     }
 
-    public DSTU7564Test(){
-        super(new DSTU7564Digest(256), new String[0], new String[0]);
+    public DSTU7564Test()
+    {
+        super(new DSTU7564Digest(256), messages, digests);
     }
 
-    public static void main(String[] args){
-        DigestTest test = new DSTU7564Test();
-        test.performTest();
+    public static void main(String[] args)
+    {
+        runTest(new DSTU7564Test());
     }
+
 
     @Override
-    public void performTest(){
+    public void performTest()
+    {
+        super.performTest();
 
-        TestResult result;
-
-        result = hash256Tests();
-        if(!result.isSuccessful()){
-            System.out.println(result);
-            return;
-        }
-
-        result = hash384Tests();
-        if(!result.isSuccessful()){
-            System.out.println(result);
-            return;
-        }
-
-        result = hash512Tests();
-        if(!result.isSuccessful()){
-            System.out.println(result);
-            return;
-        }
-
-        result = macTests();
-        if(!result.isSuccessful()){
-            System.out.println(result);
-            return;
-        }
-
-        result = overflowTest();
-        if (!result.isSuccessful()){
-            System.out.println(result);
-            return;
-        }
-
-        /* One of the tests failed */
-        System.out.println(result);
+        hash256Tests();
+        hash384Tests();
+        hash512Tests();
+        macTests();
+        overflowTest();
     }
 
-    private TestResult macTests() {
+    private void overflowTest()
+    {
+        int macBitSize = 256;
+        byte[] input = new byte[1024];
+        for (int i = 0; i != input.length; i++)
+        {
+            input[i] = (byte)(i & 0xff);
+        }
+        byte[] key = Hex.decode("1F1E1D1C1B1A191817161514131211100F0E0D0C0B0A09080706050403020100");
+
+        byte[] expectedMac = Hex.decode("165382df70adcb040b17c1aced117d26d598b239ab631271a05f6d0f875ae9ea");
+        byte[] mac = new byte[macBitSize / 8];
+
+        DSTU7564Mac dstu7564mac = new DSTU7564Mac(macBitSize);
+
+        dstu7564mac.init(new KeyParameter(key));
+        dstu7564mac.update(input, 0, input.length);
+        dstu7564mac.doFinal(mac, 0);
+
+        if (!Arrays.areEqual(expectedMac, mac))
+        {
+            fail("Failed overflow test 1 - expected "
+                    + Hex.toHexString(expectedMac)
+                    + " got " + Hex.toHexString(mac));
+        }
+
+        macBitSize = 256;
+        input = new byte[1023];
+        for (int i = 0; i != input.length; i++)
+        {
+            input[i] = (byte)(i & 0xff);
+        }
+        key = Hex.decode("1F1E1D1C1B1A191817161514131211100F0E0D0C0B0A09080706050403020100");
+
+        expectedMac = Hex.decode("ed45f163e694d990d2d835dca2f3f869a55a31396c8138161b190d5914d50686");
+        mac = new byte[macBitSize / 8];
+
+        dstu7564mac = new DSTU7564Mac(macBitSize);
+
+        dstu7564mac.init(new KeyParameter(key));
+        dstu7564mac.update(input, 0, input.length);
+        dstu7564mac.doFinal(mac, 0);
+
+        if (!Arrays.areEqual(expectedMac, mac))
+        {
+            fail("Failed overflow test 2 - expected "
+                    + Hex.toHexString(expectedMac)
+                    + " got " + Hex.toHexString(mac));
+        }
+
+        DSTU7564Digest digest = new DSTU7564Digest(macBitSize);
+        byte[] expectedDigest = Hex.decode("6bfc5ec8c1f5963fbed89da115d86e9330634eca341dd42fd94a7007e4af7942");
+        byte[] digestBuf = new byte[macBitSize / 8];
+
+        digest.update(input, 0, input.length);
+        digest.doFinal(digestBuf, 0);
+
+        if (!Arrays.areEqual(expectedDigest, digestBuf))
+        {
+            fail("Failed overflow test 3 - expected "
+                    + Hex.toHexString(expectedDigest)
+                    + " got " + Hex.toHexString(digestBuf));
+        }
+
+        expectedDigest = Hex.decode("6f8f0a3f8261af77581ab01cb89d4cb5ed87ca1d9954f11d5586e94b45c82fb8");
+
+        input = new byte[51];
+        for (int i = 0; i != input.length; i++)
+        {
+            input[i] = (byte)(i & 0xff);
+        }
+
+        digest.update(input, 0, input.length);
+        digest.doFinal(digestBuf, 0);
+
+        if (!Arrays.areEqual(expectedDigest, digestBuf))
+        {
+            fail("Failed overflow test 4 - expected "
+                    + Hex.toHexString(expectedDigest)
+                    + " got " + Hex.toHexString(digestBuf));
+        }
+
+        input = new byte[52];
+        for (int i = 0; i != input.length; i++)
+        {
+            input[i] = (byte)(i & 0xff);
+        }
+
+        expectedDigest = Hex.decode("8b6fe2ba77e684b2a1ac82232f4efc49f681cd18c82a0cfff530186a2fc642d2");
+
+        digest.update(input, 0, input.length);
+        digest.doFinal(digestBuf, 0);
+
+        if (!Arrays.areEqual(expectedDigest, digestBuf))
+        {
+            fail("Failed overflow test 5 - expected "
+                    + Hex.toHexString(expectedDigest)
+                    + " got " + Hex.toHexString(digestBuf));
+        }
+
+
+        input = new byte[53];
+        for (int i = 0; i != input.length; i++)
+        {
+            input[i] = (byte)(i & 0xff);
+        }
+
+        expectedDigest = Hex.decode("837f2b0cbe39a4defdfcb44272288d4091cab850161c70695d7831fc5f00e171");
+
+        digest.update(input, 0, input.length);
+        digest.doFinal(digestBuf, 0);
+
+        if (!Arrays.areEqual(expectedDigest, digestBuf))
+        {
+            fail("Failed overflow test 6 - expected "
+                    + Hex.toHexString(expectedDigest)
+                    + " got " + Hex.toHexString(digestBuf));
+        }
+
+        input = new byte[54];
+        for (int i = 0; i != input.length; i++)
+        {
+            input[i] = (byte)(i & 0xff);
+        }
+
+        expectedDigest = Hex.decode("21d423d5b8c7f18a0da42cdd95b36b66344125e2adc6edeab5899926442113bc");
+
+        digest.update(input, 0, input.length);
+        digest.doFinal(digestBuf, 0);
+
+        if (!Arrays.areEqual(expectedDigest, digestBuf))
+        {
+            fail("Failed overflow test 7 - expected "
+                    + Hex.toHexString(expectedDigest)
+                    + " got " + Hex.toHexString(digestBuf));
+        }
+
+        input = new byte[55];
+        for (int i = 0; i != input.length; i++)
+        {
+            input[i] = (byte)(i & 0xff);
+        }
+
+        expectedDigest = Hex.decode("0e7bf74464b81b3ae7d904170776d29f4b02a7227da578dd562d01027af7fd0e");
+
+        digest.update(input, 0, input.length);
+        digest.doFinal(digestBuf, 0);
+
+        if (!Arrays.areEqual(expectedDigest, digestBuf))
+        {
+            fail("Failed overflow test 8 - expected "
+                    + Hex.toHexString(expectedDigest)
+                    + " got " + Hex.toHexString(digestBuf));
+        }
+
+        input = new byte[56];
+        for (int i = 0; i != input.length; i++)
+        {
+            input[i] = (byte)(i & 0xff);
+        }
+
+        expectedDigest = Hex.decode("badea1f49cbcec94acec52b4c695acdddd786cca5a6763929f341a58c5134b3b");
+
+        digest.update(input, 0, input.length);
+        digest.doFinal(digestBuf, 0);
+
+        if (!Arrays.areEqual(expectedDigest, digestBuf))
+        {
+            fail("Failed overflow test 9 - expected "
+                    + Hex.toHexString(expectedDigest)
+                    + " got " + Hex.toHexString(digestBuf));
+        }
+
+        input = new byte[57];
+        for (int i = 0; i != input.length; i++)
+        {
+            input[i] = (byte)(i & 0xff);
+        }
+
+        expectedDigest = Hex.decode("a13b5f6f53ee043292ed65b66c1d49759be4d2fe0c2f6148f2416487965f7bde");
+
+        digest.update(input, 0, input.length);
+        digest.doFinal(digestBuf, 0);
+
+        if (!Arrays.areEqual(expectedDigest, digestBuf))
+        {
+            fail("Failed overflow test 10 - expected "
+                    + Hex.toHexString(expectedDigest)
+                    + " got " + Hex.toHexString(digestBuf));
+        }
+
+        input = new byte[63];
+        for (int i = 0; i != input.length; i++)
+        {
+            input[i] = (byte)(i & 0xff);
+        }
+
+        expectedDigest = Hex.decode("03a44a02c9ffafb43addb290bbcf3b8168f624e8cbd332dc6a9dc7df9d39cbc2");
+
+        digest.update(input, 0, input.length);
+        digest.doFinal(digestBuf, 0);
+
+        if (!Arrays.areEqual(expectedDigest, digestBuf))
+        {
+            fail("Failed overflow test 11 - expected "
+                    + Hex.toHexString(expectedDigest)
+                    + " got " + Hex.toHexString(digestBuf));
+        }
+
+        input = new byte[64];
+        for (int i = 0; i != input.length; i++)
+        {
+            input[i] = (byte)(i & 0xff);
+        }
+
+        expectedDigest = Hex.decode("08f4ee6f1be6903b324c4e27990cb24ef69dd58dbe84813ee0a52f6631239875");
+
+        digest.update(input, 0, input.length);
+        digest.doFinal(digestBuf, 0);
+
+        if (!Arrays.areEqual(expectedDigest, digestBuf))
+        {
+            fail("Failed overflow test 12 - expected "
+                    + Hex.toHexString(expectedDigest)
+                    + " got " + Hex.toHexString(digestBuf));
+        }
+
+        input = new byte[65];
+        for (int i = 0; i != input.length; i++)
+        {
+            input[i] = (byte)(i & 0xff);
+        }
+
+        expectedDigest = Hex.decode("a81c2fb92351f370050b7c36cd51736d5603a50ec1106cbd5fe1c9be2e5c77a6");
+
+        digest.update(input, 0, input.length);
+        digest.doFinal(digestBuf, 0);
+
+        if (!Arrays.areEqual(expectedDigest, digestBuf))
+        {
+            fail("Failed overflow test 13 - expected "
+                    + Hex.toHexString(expectedDigest)
+                    + " got " + Hex.toHexString(digestBuf));
+        }
+    }
+
+    private void macTests()
+    {
 
         //test1
         int macBitSize = 256;
@@ -81,7 +320,27 @@ public class DSTU7564Test extends DigestTest {
 
         if (!Arrays.areEqual(expectedMac, mac))
         {
-            return new SimpleTestResult(false, Name() + ": Failed mac test 1 - expected "
+            fail("Failed mac test 1 - expected "
+                    + Hex.toHexString(expectedMac)
+                    + " got " + Hex.toHexString(mac));
+        }
+
+        //test1a
+        input = Hex.decode("0001020304050607");
+        key = Hex.decode("08F4EE6F1BE6903B324C4E27990CB24EF69DD58DBE84813EE0A52F6631239875");
+
+        expectedMac = Hex.decode("383A0B11989ABF61B2CF3EB489351EB7C9AEF70CF5A9D6DBD90F340FF151BA2D");
+        mac = new byte[macBitSize / 8];
+
+        dstu7564mac = new DSTU7564Mac(macBitSize);
+
+        dstu7564mac.init(new KeyParameter(key));
+        dstu7564mac.update(input, 0, input.length);
+        dstu7564mac.doFinal(mac, 0);
+
+        if (!Arrays.areEqual(expectedMac, mac))
+        {
+            fail("Failed mac test 1a - expected "
                     + Hex.toHexString(expectedMac)
                     + " got " + Hex.toHexString(mac));
         }
@@ -102,7 +361,7 @@ public class DSTU7564Test extends DigestTest {
 
         if (!Arrays.areEqual(expectedMac, mac))
         {
-            return new SimpleTestResult(false, Name() + ": Failed mac test 2 - expected "
+            fail("Failed mac test 2 - expected "
                     + Hex.toHexString(expectedMac)
                     + " got " + Hex.toHexString(mac));
         }
@@ -123,15 +382,14 @@ public class DSTU7564Test extends DigestTest {
 
         if (!Arrays.areEqual(expectedMac, mac))
         {
-            return new SimpleTestResult(false, Name() + ": Failed mac test 3 - expected "
+            fail("Failed mac test 3 - expected "
                     + Hex.toHexString(expectedMac)
                     + " got " + Hex.toHexString(mac));
         }
-
-        return new SimpleTestResult(true, Name() + ": Okay");
     }
 
-    private TestResult hash512Tests() {
+    private void hash512Tests()
+    {
 
         int hashBitSize = 512;
 
@@ -147,7 +405,7 @@ public class DSTU7564Test extends DigestTest {
 
         if (!Arrays.areEqual(expectedHash, hash))
         {
-            return new SimpleTestResult(false, Name() + ": Failed hash-512 test 1 - expected "
+            fail("Failed hash-512 test 1 - expected "
                     + Hex.toHexString(expectedHash)
                     + " got " + Hex.toHexString(hash));
         }
@@ -164,7 +422,7 @@ public class DSTU7564Test extends DigestTest {
 
         if (!Arrays.areEqual(expectedHash, hash))
         {
-            return new SimpleTestResult(false, Name() + ": Failed hash-512 test 2 - expected "
+            fail("Failed hash-512 test 2 - expected "
                     + Hex.toHexString(expectedHash)
                     + " got " + Hex.toHexString(hash));
         }
@@ -181,7 +439,7 @@ public class DSTU7564Test extends DigestTest {
 
         if (!Arrays.areEqual(expectedHash, hash))
         {
-            return new SimpleTestResult(false, Name() + ": Failed hash-512 test 3 - expected "
+            fail("Failed hash-512 test 3 - expected "
                     + Hex.toHexString(expectedHash)
                     + " got " + Hex.toHexString(hash));
         }
@@ -198,7 +456,7 @@ public class DSTU7564Test extends DigestTest {
 
         if (!Arrays.areEqual(expectedHash, hash))
         {
-            return new SimpleTestResult(false, Name() + ": Failed hash-512 test 4 - expected "
+            fail("Failed hash-512 test 4 - expected "
                     + Hex.toHexString(expectedHash)
                     + " got " + Hex.toHexString(hash));
         }
@@ -215,7 +473,7 @@ public class DSTU7564Test extends DigestTest {
 
         if (!Arrays.areEqual(expectedHash, hash))
         {
-            return new SimpleTestResult(false, Name() + ": Failed hash-512 test 5 - expected "
+            fail("Failed hash-512 test 5 - expected "
                     + Hex.toHexString(expectedHash)
                     + " got " + Hex.toHexString(hash));
         }
@@ -233,15 +491,14 @@ public class DSTU7564Test extends DigestTest {
 
         if (!Arrays.areEqual(expectedHash, hash))
         {
-            return new SimpleTestResult(false, Name() + ": Failed hash-512 test 6 - expected "
+            fail("Failed hash-512 test 6 - expected "
                     + Hex.toHexString(expectedHash)
                     + " got " + Hex.toHexString(hash));
         }
-
-        return new SimpleTestResult(true, Name() + ": Okay");
     }
 
-    private TestResult hash384Tests() {
+    private void hash384Tests()
+    {
 
         int hashBitSize = 384;
 
@@ -257,15 +514,14 @@ public class DSTU7564Test extends DigestTest {
 
         if (!Arrays.areEqual(expectedHash, hash))
         {
-            return new SimpleTestResult(false, Name() + ": Failed hash-384 test 1 - expected "
+            fail("Failed hash-384 test 1 - expected "
                     + Hex.toHexString(expectedHash)
                     + " got " + Hex.toHexString(hash));
         }
-
-        return new SimpleTestResult(true, Name() + ": Okay");
     }
 
-    private TestResult hash256Tests() {
+    private void hash256Tests()
+    {
 
         int hashBitSize = 256;
 
@@ -281,7 +537,7 @@ public class DSTU7564Test extends DigestTest {
 
         if (!Arrays.areEqual(expectedHash, hash))
         {
-            return new SimpleTestResult(false, Name() + ": Failed hash-256 test 1 - expected "
+            fail("Failed hash-256 test 1 - expected "
                     + Hex.toHexString(expectedHash)
                     + " got " + Hex.toHexString(hash));
         }
@@ -298,7 +554,7 @@ public class DSTU7564Test extends DigestTest {
 
         if (!Arrays.areEqual(expectedHash, hash))
         {
-            return new SimpleTestResult(false, Name() + ": Failed hash-256 test 2 - expected "
+            fail("Failed hash-256 test 2 - expected "
                     + Hex.toHexString(expectedHash)
                     + " got " + Hex.toHexString(hash));
         }
@@ -314,7 +570,7 @@ public class DSTU7564Test extends DigestTest {
 
         if (!Arrays.areEqual(expectedHash, hash))
         {
-            return new SimpleTestResult(false, Name() + ": Failed hash-256 test 3 - expected "
+            fail("Failed hash-256 test 3 - expected "
                     + Hex.toHexString(expectedHash)
                     + " got " + Hex.toHexString(hash));
         }
@@ -330,7 +586,7 @@ public class DSTU7564Test extends DigestTest {
 
         if (!Arrays.areEqual(expectedHash, hash))
         {
-            return new SimpleTestResult(false, Name() + ": Failed hash-256 test 4 - expected "
+            fail("Failed hash-256 test 4 - expected "
                     + Hex.toHexString(expectedHash)
                     + " got " + Hex.toHexString(hash));
         }
@@ -346,7 +602,7 @@ public class DSTU7564Test extends DigestTest {
 
         if (!Arrays.areEqual(expectedHash, hash))
         {
-            return new SimpleTestResult(false, Name() + ": Failed hash-256 test 5 - expected "
+            fail("Failed hash-256 test 5 - expected "
                     + Hex.toHexString(expectedHash)
                     + " got " + Hex.toHexString(hash));
         }
@@ -362,263 +618,9 @@ public class DSTU7564Test extends DigestTest {
 
         if (!Arrays.areEqual(expectedHash, hash))
         {
-            return new SimpleTestResult(false, Name() + ": Failed hash-256 test 6 - expected "
+            fail("Failed hash-256 test 6 - expected "
                     + Hex.toHexString(expectedHash)
                     + " got " + Hex.toHexString(hash));
         }
-
-        return new SimpleTestResult(true, Name() + ": Okay");
     }
-
-    private TestResult overflowTest() {
-        int macBitSize = 256;
-        byte[] input = new byte[1024];
-        for (int i = 0; i != input.length; i++)
-        {
-            input[i] = (byte)(i & 0xff);
-        }
-        byte[] key = Hex.decode("1F1E1D1C1B1A191817161514131211100F0E0D0C0B0A09080706050403020100");
-
-        byte[] expectedMac = Hex.decode("165382df70adcb040b17c1aced117d26d598b239ab631271a05f6d0f875ae9ea");
-        byte[] mac = new byte[macBitSize / 8];
-
-        DSTU7564Mac dstu7564mac = new DSTU7564Mac(macBitSize);
-
-        dstu7564mac.init(new KeyParameter(key));
-        dstu7564mac.update(input, 0, input.length);
-        dstu7564mac.doFinal(mac, 0);
-
-        if (!Arrays.areEqual(expectedMac, mac))
-        {
-            return new SimpleTestResult(false, Name() + ": Failed overflow test 1 - expected "
-                    + Hex.toHexString(expectedMac)
-                    + " got " + Hex.toHexString(mac));
-        }
-
-        macBitSize = 256;
-        input = new byte[1023];
-        for (int i = 0; i != input.length; i++)
-        {
-            input[i] = (byte)(i & 0xff);
-        }
-        key = Hex.decode("1F1E1D1C1B1A191817161514131211100F0E0D0C0B0A09080706050403020100");
-
-        expectedMac = Hex.decode("0e38a343a0f0b6727369943b9ae9ab7c199521413457a10735caeb47f76cd681");
-        mac = new byte[macBitSize / 8];
-
-        dstu7564mac = new DSTU7564Mac(macBitSize);
-
-        dstu7564mac.init(new KeyParameter(key));
-        dstu7564mac.update(input, 0, input.length);
-        dstu7564mac.doFinal(mac, 0);
-
-        if (!Arrays.areEqual(expectedMac, mac))
-        {
-            return new SimpleTestResult(false, Name() + ": Failed overflow test 2 - expected "
-                    + Hex.toHexString(expectedMac)
-                    + " got " + Hex.toHexString(mac));
-        }
-
-        DSTU7564Digest digest = new DSTU7564Digest(macBitSize);
-        byte[] expectedDigest = Hex.decode("6bfc5ec8c1f5963fbed89da115d86e9330634eca341dd42fd94a7007e4af7942");
-        byte[] digestBuf = new byte[macBitSize / 8];
-
-        digest.update(input, 0, input.length);
-        digest.doFinal(digestBuf, 0);
-
-        if (!Arrays.areEqual(expectedDigest, digestBuf))
-        {
-            return new SimpleTestResult(false, Name() + ": Failed overflow test 3 - expected "
-                    + Hex.toHexString(expectedDigest)
-                    + " got " + Hex.toHexString(digestBuf));
-        }
-
-        expectedDigest = Hex.decode("6f8f0a3f8261af77581ab01cb89d4cb5ed87ca1d9954f11d5586e94b45c82fb8");
-
-        input = new byte[51];
-        for (int i = 0; i != input.length; i++)
-        {
-            input[i] = (byte)(i & 0xff);
-        }
-
-        digest.update(input, 0, input.length);
-        digest.doFinal(digestBuf, 0);
-
-        if (!Arrays.areEqual(expectedDigest, digestBuf))
-        {
-            return new SimpleTestResult(false, Name() + ": Failed overflow test 4 - expected "
-                    + Hex.toHexString(expectedDigest)
-                    + " got " + Hex.toHexString(digestBuf));
-        }
-
-        input = new byte[52];
-        for (int i = 0; i != input.length; i++)
-        {
-            input[i] = (byte)(i & 0xff);
-        }
-
-        expectedDigest = Hex.decode("8b6fe2ba77e684b2a1ac82232f4efc49f681cd18c82a0cfff530186a2fc642d2");
-
-        digest.update(input, 0, input.length);
-        digest.doFinal(digestBuf, 0);
-
-        if (!Arrays.areEqual(expectedDigest, digestBuf))
-        {
-            return new SimpleTestResult(false, Name() + ": Failed overflow test 5 - expected "
-                    + Hex.toHexString(expectedDigest)
-                    + " got " + Hex.toHexString(digestBuf));
-        }
-
-
-        input = new byte[53];
-        for (int i = 0; i != input.length; i++)
-        {
-            input[i] = (byte)(i & 0xff);
-        }
-
-        expectedDigest = Hex.decode("837f2b0cbe39a4defdfcb44272288d4091cab850161c70695d7831fc5f00e171");
-
-        digest.update(input, 0, input.length);
-        digest.doFinal(digestBuf, 0);
-
-        if (!Arrays.areEqual(expectedDigest, digestBuf))
-        {
-            return new SimpleTestResult(false, Name() + ": Failed overflow test 6 - expected "
-                    + Hex.toHexString(expectedDigest)
-                    + " got " + Hex.toHexString(digestBuf));
-        }
-
-        input = new byte[54];
-        for (int i = 0; i != input.length; i++)
-        {
-            input[i] = (byte)(i & 0xff);
-        }
-
-        expectedDigest = Hex.decode("21d423d5b8c7f18a0da42cdd95b36b66344125e2adc6edeab5899926442113bc");
-
-        digest.update(input, 0, input.length);
-        digest.doFinal(digestBuf, 0);
-
-        if (!Arrays.areEqual(expectedDigest, digestBuf))
-        {
-            return new SimpleTestResult(false, Name() + ": Failed overflow test 7 - expected "
-                    + Hex.toHexString(expectedDigest)
-                    + " got " + Hex.toHexString(digestBuf));
-        }
-
-        input = new byte[55];
-        for (int i = 0; i != input.length; i++)
-        {
-            input[i] = (byte)(i & 0xff);
-        }
-
-        expectedDigest = Hex.decode("0e7bf74464b81b3ae7d904170776d29f4b02a7227da578dd562d01027af7fd0e");
-
-        digest.update(input, 0, input.length);
-        digest.doFinal(digestBuf, 0);
-
-        if (!Arrays.areEqual(expectedDigest, digestBuf))
-        {
-            return new SimpleTestResult(false, Name() + ": Failed overflow test 8 - expected "
-                    + Hex.toHexString(expectedDigest)
-                    + " got " + Hex.toHexString(digestBuf));
-        }
-
-        input = new byte[56];
-        for (int i = 0; i != input.length; i++)
-        {
-            input[i] = (byte)(i & 0xff);
-        }
-
-        expectedDigest = Hex.decode("badea1f49cbcec94acec52b4c695acdddd786cca5a6763929f341a58c5134b3b");
-
-        digest.update(input, 0, input.length);
-        digest.doFinal(digestBuf, 0);
-
-        if (!Arrays.areEqual(expectedDigest, digestBuf))
-        {
-            return new SimpleTestResult(false, Name() + ": Failed overflow test 9 - expected "
-                    + Hex.toHexString(expectedDigest)
-                    + " got " + Hex.toHexString(digestBuf));
-        }
-
-        input = new byte[57];
-        for (int i = 0; i != input.length; i++)
-        {
-            input[i] = (byte)(i & 0xff);
-        }
-
-        expectedDigest = Hex.decode("a13b5f6f53ee043292ed65b66c1d49759be4d2fe0c2f6148f2416487965f7bde");
-
-        digest.update(input, 0, input.length);
-        digest.doFinal(digestBuf, 0);
-
-        if (!Arrays.areEqual(expectedDigest, digestBuf))
-        {
-            return new SimpleTestResult(false, Name() + ": Failed overflow test 10 - expected "
-                    + Hex.toHexString(expectedDigest)
-                    + " got " + Hex.toHexString(digestBuf));
-        }
-
-        input = new byte[63];
-        for (int i = 0; i != input.length; i++)
-        {
-            input[i] = (byte)(i & 0xff);
-        }
-
-        expectedDigest = Hex.decode("03a44a02c9ffafb43addb290bbcf3b8168f624e8cbd332dc6a9dc7df9d39cbc2");
-
-        digest.update(input, 0, input.length);
-        digest.doFinal(digestBuf, 0);
-
-        if (!Arrays.areEqual(expectedDigest, digestBuf))
-        {
-            return new SimpleTestResult(false, Name() + ": Failed overflow test 11 - expected "
-                    + Hex.toHexString(expectedDigest)
-                    + " got " + Hex.toHexString(digestBuf));
-        }
-
-        input = new byte[64];
-        for (int i = 0; i != input.length; i++)
-        {
-            input[i] = (byte)(i & 0xff);
-        }
-
-        expectedDigest = Hex.decode("08f4ee6f1be6903b324c4e27990cb24ef69dd58dbe84813ee0a52f6631239875");
-
-        digest.update(input, 0, input.length);
-        digest.doFinal(digestBuf, 0);
-
-        if (!Arrays.areEqual(expectedDigest, digestBuf))
-        {
-            return new SimpleTestResult(false, Name() + ": Failed overflow test 12 - expected "
-                    + Hex.toHexString(expectedDigest)
-                    + " got " + Hex.toHexString(digestBuf));
-        }
-
-        input = new byte[65];
-        for (int i = 0; i != input.length; i++)
-        {
-            input[i] = (byte)(i & 0xff);
-        }
-
-        expectedDigest = Hex.decode("a81c2fb92351f370050b7c36cd51736d5603a50ec1106cbd5fe1c9be2e5c77a6");
-
-        digest.update(input, 0, input.length);
-        digest.doFinal(digestBuf, 0);
-
-        if (!Arrays.areEqual(expectedDigest, digestBuf))
-        {
-            return new SimpleTestResult(false, Name() + ": Failed overflow test 13 - expected "
-                    + Hex.toHexString(expectedDigest)
-                    + " got " + Hex.toHexString(digestBuf));
-        }
-
-        return new SimpleTestResult(true, Name() + ": Okay");
-    }
-
-    private String Name(){
-        return "DSTU7564";
-    }
-
 }
